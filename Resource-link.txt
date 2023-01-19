@@ -1,0 +1,6 @@
+Relational algebra
+
+https://www.tutorialspoint.com/dbms/relational_algebra.htm
+
+https://www.exploredatabase.com/2020/04/relational-algebra-in-database-solved-exercise.html
+
