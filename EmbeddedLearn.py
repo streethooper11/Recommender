@@ -24,8 +24,8 @@ def getTokenEmbeddings(trained_model, indexed_tokens, segments_ids):
         outputs = trained_model(tokens_tensor, segments_tensors)
 
         # Evaluating the model will return a different number of objects based on
-        # how it's  configured in the `from_pretrained` call earlier. In this case,
-        # becase we set `output_hidden_states = True`, the third item will be the
+        # how it's configured in the trained model.
+        # As `output_hidden_states = True` in the trained model, the third item will be the
         # hidden states from all layers. See the documentation for more details:
         # https://huggingface.co/transformers/model_doc/bert.html#bertmodel
         hidden_states = outputs[2]
@@ -86,8 +86,7 @@ def embedSentence(trained_model, tokenizer_name: str, sentence: str):
 
     # For each token in the sentence...
     for token in token_embeddings:
-        # Concatenate the vectors (that is, append them together) from the last
-        # four layers.
+        # Concatenate the vectors from the last four layers.
         # Each layer vector is 768 values, so `cat_vec` is length 3,072.
         cat_vec = torch.cat((token[-1], token[-2], token[-3], token[-4]), dim=0)
 
