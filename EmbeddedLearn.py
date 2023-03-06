@@ -1,4 +1,6 @@
-# Source for using BERT: https://mccormickml.com/2019/05/14/BERT-word-embeddings-tutorial/
+# Source for using BERT:
+# https://mccormickml.com/2019/05/14/BERT-word-embeddings-tutorial/
+# https://techblog.assignar.com/how-to-use-bert-sentence-embedding-for-clustering-text/
 
 import torch
 from transformers import BertTokenizer, BertModel
@@ -96,21 +98,20 @@ def embedSentence(trained_model, tokenizer_name: str, sentence: str):
     return token_vecs_cat
 
 
-def embedParagraph(paragraph: str):
+def embedParagraph(all_vectors: list, paragraph: str, bert_version: str = 'bert-base-uncased'):
     """
     Performs word embedding for a paragraph.
 
+    :param all_vectors: The vector outputs from BERT
     :param paragraph: Text
-    :return: A list of vectors that represents the words in the paragraph
+    :param bert_version: Type of BERT to use
     """
 
-    all_vectors = []
-
-    # Split the paragraph into sentences
+    # Split the paragraph into sentences with periods
     sentences = paragraph.split(".")
 
     # Load pre-trained model (weights)
-    model = BertModel.from_pretrained('bert-base-uncased',
+    model = BertModel.from_pretrained(bert_version,
                                       output_hidden_states=True,  # Whether the model returns all hidden-states.
                                       )
 
@@ -118,6 +119,4 @@ def embedParagraph(paragraph: str):
     model.eval()
 
     for sentence in sentences:
-        all_vectors.append(embedSentence(model, 'bert-base-uncased', sentence))
-
-    return all_vectors
+        all_vectors.append(embedSentence(model, bert_version, sentence))
