@@ -4,6 +4,7 @@
 
 import torch
 from transformers import BertTokenizer, BertModel
+import pandas as pd
 
 
 def getTokenEmbeddings(trained_model, indexed_tokens, segments_ids):
@@ -98,7 +99,7 @@ def embedSentence(trained_model, tokenizer_name: str, sentence: str):
     return token_vecs_cat
 
 
-def embedParagraph(all_vectors: list, paragraph: str, bert_version: str = 'bert-base-uncased'):
+def embedParagraph(trained_model, paragraph: str, bert_version: str):
     """
     Performs word embedding for a paragraph.
 
@@ -110,6 +111,14 @@ def embedParagraph(all_vectors: list, paragraph: str, bert_version: str = 'bert-
     # Split the paragraph into sentences with periods
     sentences = paragraph.split(".")
 
+    all_vectors = []
+    for sentence in sentences:
+        all_vectors.append(embedSentence(trained_model, bert_version, sentence))
+
+    return all_vectors
+
+
+def embedWords(csvLoc: str, bert_version: str):
     # Load pre-trained model (weights)
     model = BertModel.from_pretrained(bert_version,
                                       output_hidden_states=True,  # Whether the model returns all hidden-states.
@@ -118,5 +127,11 @@ def embedParagraph(all_vectors: list, paragraph: str, bert_version: str = 'bert-
     # Put the model in "evaluation" mode, meaning feed-forward operation.
     model.eval()
 
-    for sentence in sentences:
-        all_vectors.append(embedSentence(model, bert_version, sentence))
+    df = pd.read_csv(csvLoc)
+    df_length = df.count()
+
+    all_vectors = []
+    for i in range(df_length):
+        all_vectors.append(embedParagraph(model, df[i, 1])) # paragraph is in column 1
+
+    return all_vectors

@@ -3,20 +3,24 @@
 # https://techblog.assignar.com/how-to-use-bert-sentence-embedding-for-clustering-text/
 
 import numpy as np
-import pandas as pd
 from sklearn.cluster import DBSCAN
 
 
-def dbscanClustering(vectors):
+def dbscanClustering(vectors, eps=0.5, min_samples=2, metric='euclidean'):
     """
     Clusters the BERT vectors using DBSCAN
 
     :param vectors: BERT vectors
+    :param eps: Epsilon for DBSCAN
+    :param min_samples: Minimum number of neighbours required
+    :param metric: Distance measure
     :return: Result of DBSCAN clustering
     """
     # Change vectors to a numpy array
     x = np.array(vectors)
 
     # Perform DBSCAN on the numpy array and get labels
-    db = DBSCAN(eps=0.5, min_samples=2, metric='euclidean', algorithm='auto').fit(x)
+    db = DBSCAN(eps=eps, min_samples=min_samples, metric=metric, algorithm='auto').fit(x)
     labels = db.labels_
+
+    return labels
