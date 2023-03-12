@@ -18,7 +18,7 @@ def dbscanClustering(vectors, eps=0.5, min_samples=2, metric='euclidean'):
     """
 
     # Change vectors to a numpy array
-    x = np.array(vectors)
+    x = np.array(vectors.tolist())
     print(x)
 
     # Perform DBSCAN on the numpy array and get labels
