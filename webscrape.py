@@ -13,13 +13,20 @@ response = requests.get(url)
 # Parse the HTML content using BeautifulSoup
 soup = BeautifulSoup(response.content, 'html.parser')
 
-# Extract all paragraphs of text on the page
+title = ["overview", "personality", "character"]
 paragraphs = []
-for paragraph in soup.find_all('p'):
-    paragraphs.append(paragraph.text.strip())
+
+# Extract all paragraphs of text on the page
+for header in soup.find_all('h2'):
+    header_text = header.text.strip().replace("[edit]", "")
+    if header_text.lower() in title:
+        print(header_text)
+        next_paragraph = header.find_next('p')  # find the next paragraph after the header
+        if next_paragraph:
+            paragraphs.append(next_paragraph.text.strip())
 
 # Write the extracted paragraphs of text to a CSV file
-with open('output.csv', mode='w', newline='', encoding='utf-8') as file:
+with open('output.csv', mode='a', newline='', encoding='utf-8') as file:
     writer = csv.writer(file)
     for paragraph in paragraphs:
         writer.writerow([actor, paragraph])
