@@ -5,6 +5,7 @@
 import torch
 from transformers import BertTokenizer, BertModel
 import pandas as pd
+import re
 
 
 def getTokenEmbeddings(trained_model, indexed_tokens, segments_ids):
