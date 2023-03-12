@@ -2,6 +2,8 @@ import requests
 from bs4 import BeautifulSoup
 import csv
 
+actor = "Jack Black"
+
 # Define the URL of the Wikipedia page you want to scrape
 url = "https://en.wikipedia.org/wiki/Kung_Fu_Panda_(film)"
 
@@ -20,4 +22,4 @@ for paragraph in soup.find_all('p'):
 with open('output.csv', mode='w', newline='', encoding='utf-8') as file:
     writer = csv.writer(file)
     for paragraph in paragraphs:
-        writer.writerow([paragraph])
+        writer.writerow([actor, paragraph])
