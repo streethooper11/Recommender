@@ -1,8 +1,6 @@
 import requests
 from bs4 import BeautifulSoup
 import csv
-import sys
-sys.stdout.encoding = 'utf-8'
 
 # Define the URL of the Wikipedia page you want to scrape
 url = "https://en.wikipedia.org/wiki/Kung_Fu_Panda_(film)"
