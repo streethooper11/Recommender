@@ -132,6 +132,7 @@ def embedWords(csvLoc: str, bert_version: str):
 
     all_vectors = []
     for i in range(df_length):
-        all_vectors.append(embedParagraph(model, df[i, 1])) # paragraph is in column 1
+        embedStuff = embedParagraph(model, df.iloc[i, 1], bert_version)  # paragraph is in column 1
+        all_vectors.append(embedStuff)
 
     return all_vectors
