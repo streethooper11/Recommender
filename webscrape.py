@@ -5,7 +5,7 @@ import csv
 actor = "Jack Black"
 
 # Define the URL of the Wikipedia page you want to scrape
-url = "https://en.wikipedia.org/wiki/Carl_Denham"
+url = "https://kungfupanda.fandom.com/wiki/Po"
 
 # Make a request to the URL
 response = requests.get(url)
@@ -15,6 +15,10 @@ soup = BeautifulSoup(response.content, 'html.parser')
 
 title = ["overview", "personality", "character", "characterization", "biography"]
 paragraphs = []
+
+first_paragraph = soup.find('p')
+if first_paragraph:
+    paragraphs.append(first_paragraph.text.strip())
 
 # Extract all paragraphs of text on the page
 for header in soup.find_all('h2'):
