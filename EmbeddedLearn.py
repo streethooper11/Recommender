@@ -116,7 +116,7 @@ def embedParagraph(trained_model, paragraph: str, bert_version: str):
 
     all_vectors = []
     for sentence in sentences:
-        all_vectors.append(embedSentence(trained_model, bert_version, sentence))
+        all_vectors.extend(embedSentence(trained_model, bert_version, sentence))
 
     return all_vectors
 
