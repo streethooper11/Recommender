@@ -128,7 +128,7 @@ def embedWords(csvLoc: str, bert_version: str):
     model.eval()
 
     df = pd.read_csv(csvLoc)
-    df_length = df.count()
+    df_length = len(df.index)
 
     all_vectors = []
     for i in range(df_length):
