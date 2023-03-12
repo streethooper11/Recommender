@@ -17,13 +17,18 @@ def dbscanClustering(vectors, eps=0.5, min_samples=2, metric='euclidean'):
     :return: Result of DBSCAN clustering
     """
 
+
+    x = np.empty((len(vectors), len(vectors[0])))
     # Change vectors to a numpy array
-    x = np.array(vectors.tolist())
-    print(x)
+    i = 0
+    for eachTensor in vectors:
+        x[i] = np.array(eachTensor)
+        i = i + 1
 
     # Perform DBSCAN on the numpy array and get labels
     db = DBSCAN(eps=eps, min_samples=min_samples, metric=metric, algorithm='auto').fit(x)
-    DBSCAN_dataset = x.copy()
-    DBSCAN_dataset.loc[:, 'Cluster'] = db.labels_
 
-    return DBSCAN_dataset
+    # TODO: Insert db.labels_ to DBSCAN_dataset
+    # DBSCAN_dataset = x.copy()
+
+    return db.labels_
