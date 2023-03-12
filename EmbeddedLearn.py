@@ -38,6 +38,8 @@ def getTokenEmbeddings(trained_model, indexed_tokens, segments_ids):
     token_embeddings = torch.stack(hidden_states, dim=0)
     # Remove dimension 1, the "batches".
     token_embeddings = torch.squeeze(token_embeddings, dim=1)
+    # Swap dimensions 0 and 1.
+    token_embeddings = token_embeddings.permute(1, 0, 2)
 
     return token_embeddings
 
@@ -109,7 +111,7 @@ def embedParagraph(trained_model, paragraph: str, bert_version: str):
     """
 
     # Split the paragraph into sentences with periods
-    sentences = paragraph.split(".")
+    sentences = str(paragraph).split(".")
 
     all_vectors = []
     for sentence in sentences:
