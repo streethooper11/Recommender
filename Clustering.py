@@ -16,11 +16,14 @@ def dbscanClustering(vectors, eps=0.5, min_samples=2, metric='euclidean'):
     :param metric: Distance measure
     :return: Result of DBSCAN clustering
     """
+
     # Change vectors to a numpy array
-    x = np.array(vectors)
+    x = vectors.array()
+    print(x)
 
     # Perform DBSCAN on the numpy array and get labels
     db = DBSCAN(eps=eps, min_samples=min_samples, metric=metric, algorithm='auto').fit(x)
-    labels = db.labels_
+    DBSCAN_dataset = x.copy()
+    DBSCAN_dataset.loc[:, 'Cluster'] = db.labels_
 
-    return labels
+    return DBSCAN_dataset

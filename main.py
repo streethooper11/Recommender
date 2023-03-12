@@ -6,4 +6,4 @@ import Clustering
 csvLoc = 'output.csv'
 
 all_vectors = EmbeddedLearn.embedWords(csvLoc, 'bert-base-uncased')
-clusters = Clustering.dbscanClustering(all_vectors)
+data_with_clusters = Clustering.dbscanClustering(all_vectors)
