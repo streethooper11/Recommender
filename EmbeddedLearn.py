@@ -70,7 +70,7 @@ def indexAndSetSegmentIds(tokenizer_name: str, sentence: str):
     # Mark each of the tokens as belonging to sentence "1", as each element is 1 sentence.
     segments_ids = [1] * len(tokenized_text)
 
-    return indexed_tokens, segments_ids
+    return tokenized_text, indexed_tokens, segments_ids
 
 
 def embedSentence(trained_model, tokenizer_name: str, sentence: str):
@@ -84,7 +84,7 @@ def embedSentence(trained_model, tokenizer_name: str, sentence: str):
     :return: A list of vectors that represents the words in the sentence
     """
 
-    indexed_tokens, segments_ids = indexAndSetSegmentIds(tokenizer_name, sentence)
+    tokenized_text, indexed_tokens, segments_ids = indexAndSetSegmentIds(tokenizer_name, sentence)
     token_embeddings = getTokenEmbeddings(trained_model, indexed_tokens, segments_ids)
 
     # Stores the token vectors
@@ -99,26 +99,7 @@ def embedSentence(trained_model, tokenizer_name: str, sentence: str):
         # Use `cat_vec` to represent `token`.
         token_vecs_cat.append(cat_vec)
 
-    return token_vecs_cat
-
-
-def embedParagraph(trained_model, paragraph: str, bert_version: str):
-    """
-    Performs word embedding for a paragraph.
-
-    :param all_vectors: The vector outputs from BERT
-    :param paragraph: Text
-    :param bert_version: Type of BERT to use
-    """
-
-    # Split the paragraph into sentences with periods
-    sentences = str(paragraph).split(".")
-
-    all_vectors = []
-    for sentence in sentences:
-        all_vectors.extend(embedSentence(trained_model, bert_version, sentence))
-
-    return all_vectors
+    return tokenized_text, token_vecs_cat
 
 
 def embedWords(csvLoc: str, bert_version: str):
@@ -133,9 +114,25 @@ def embedWords(csvLoc: str, bert_version: str):
     df = pd.read_csv(csvLoc)
     df_length = len(df.index)
 
+    all_actors = []
+    all_subwords = []
     all_vectors = []
     for i in range(df_length):
-        embedStuff = embedParagraph(model, df.iloc[i, 1], bert_version)  # paragraph is in column 1
-        all_vectors.extend(embedStuff)
+        paragraph = str(df.iloc[i, 1])
+        sentences = paragraph.split(".")
+        actor_paragraph = str(df.iloc[i, 0])
 
-    return all_vectors
+        word_token_paragraph = []
+        vector_paragraph = []
+        for sentence in sentences:
+            word_token_sentence, vector_sentence = embedSentence(model, bert_version, re.sub(r"\[.*\]", "", sentence))
+            word_token_paragraph.extend(word_token_sentence)  # Add a list of words from the sentence
+            vector_paragraph.extend(vector_sentence)  # Get BERT tensors from the sentence
+
+        for j in range(len(word_token_paragraph)):
+            all_actors.append(actor_paragraph)
+
+        all_subwords.extend(word_token_paragraph)  # Add a list of words from the paragraph
+        all_vectors.extend(vector_paragraph)  # Get BERT tensors from the paragraph
+
+    return all_actors, all_subwords, all_vectors
