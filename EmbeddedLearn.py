@@ -117,6 +117,9 @@ def embedWords(csvLoc: str, bert_version: str):
     all_actors = []
     all_subwords = []
     all_vectors = []
+
+    # used to remove separators and some special characters that appear in descriptions
+    remove_words = set(["[CLS]", "[SEP]", ",", '"', "'", ";", ":", "!", "$", "^"])
     for i in range(df_length):
         paragraph = str(df.iloc[i, 1])
         sentences = paragraph.split(".")
@@ -128,6 +131,12 @@ def embedWords(csvLoc: str, bert_version: str):
             word_token_sentence, vector_sentence = embedSentence(model, bert_version, re.sub(r"\[.*\]", "", sentence))
             word_token_paragraph.extend(word_token_sentence)  # Add a list of words from the sentence
             vector_paragraph.extend(vector_sentence)  # Get BERT tensors from the sentence
+
+        # remove tensors for separators, some special characters, and 1-length characters
+        info_paragraph = [t for t in zip(word_token_paragraph, vector_paragraph)
+                          if (t[0] not in remove_words) and (len(t[0]) > 1)]
+        # then split into lists again
+        word_token_paragraph, vector_paragraph = zip(*info_paragraph)
 
         for j in range(len(word_token_paragraph)):
             all_actors.append(actor_paragraph)
