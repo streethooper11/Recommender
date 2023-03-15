@@ -1,3 +1,31 @@
+import numpy as np
+
+
+def eliminateStopWords(subwords, tensors, stopWordsLoc):
+    # Read all stopwords by splitting them with whitespaces
+    stopwords = set(open(stopWordsLoc).read().split())
+
+    # Take all tensors as long as the matching subwords is not a stopword
+    result = [t for s, t in zip(subwords, tensors)
+              if s not in stopwords]
+
+    return result
+
+
+def tensorsToNumpy(subwords, tensors, save_loc):
+    filtered_tensors = eliminateStopWords(subwords, tensors)
+
+    # Change vectors to a numpy array
+    x = []
+    for eachTensor in tensors:
+        x.append(eachTensor.tolist())
+    x = np.array(x)
+
+    np.save(save_loc, x)
+
+    return None
+
+
 def createDictionary_ClustersAndActors(clusters, actors):
     """
     Creates a dictionary from a list of clusters and a list of actors
@@ -8,8 +36,9 @@ def createDictionary_ClustersAndActors(clusters, actors):
     """
 
     result = dict()
+    i = 0
 
-    for i in range(len(clusters)):
+    while i < range(len(actors)):
         # make sure a cluster is assigned
         if clusters[i] != -1:
             # create a new list if this is the first time the cluster appears
@@ -23,4 +52,4 @@ def createDictionary_ClustersAndActors(clusters, actors):
             # increase count by 1
             result[clusters[i]][actors[i]] += 1
 
-    return result
+    return result, i
