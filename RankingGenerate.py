@@ -7,7 +7,7 @@ def generateRanking(clusters, actors, topNum):
 
     # Similarity score
     while index < len(clusters):
-
+        break
     # Popularity
 
     # Rating

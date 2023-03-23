@@ -6,6 +6,7 @@ import RankingGenerate
 
 csvLoc = 'output.csv'
 vectorLoc = 'trainVectors.npy'
+inputCsvLoc = 'input.csv'
 inputLoc = 'inputVectors.npy'
 stopWordsLoc = ''
 
@@ -14,7 +15,7 @@ train_actors, train_subwords, train_vectors = EmbeddedLearn.embedWords(csvLoc, '
 ProcessList.tensorsToNumpy(train_subwords, train_vectors, vectorLoc, stopWordsLoc)
 
 # embed words used for input with pre-trained BERT model
-_, input_subwords, input_vectors = EmbeddedLearn.embedWords(inputLoc, 'bert-base-uncased')
+_, input_subwords, input_vectors = EmbeddedLearn.embedWords(inputCsvLoc, 'bert-base-uncased')
 ProcessList.tensorsToNumpy(input_subwords, input_vectors, inputLoc, stopWordsLoc)
 
 # combine training and input to cluster them together

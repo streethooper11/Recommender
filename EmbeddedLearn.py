@@ -1,6 +1,7 @@
 # Source for using BERT:
 # https://mccormickml.com/2019/05/14/BERT-word-embeddings-tutorial/
-# https://techblog.assignar.com/how-to-use-bert-sentence-embedding-for-clustering-text/
+# https://is-rajapaksha.medium.com/bert-word-embeddings-deep-dive-32f6214f02bf
+# https://huggingface.co/docs/transformers/main_classes/tokenizer
 
 import torch
 from transformers import BertTokenizer, BertModel
@@ -8,24 +9,24 @@ import pandas as pd
 import re
 
 
-def getTokenEmbeddings(trained_model, indexed_tokens, segments_ids):
+def getTokenEmbeddings(trained_model, indexed_tokens):
     """
     Obtains token embeddings from the indexed tokens and segment IDs
 
     :param trained_model: Trained BERT model
     :param indexed_tokens: Indexed tokens
-    :param segments_ids: List of segment IDs
     :return:The embeddings in the sentence
     """
 
     # Convert inputs to PyTorch tensors
     tokens_tensor = torch.tensor([indexed_tokens])
-    segments_tensors = torch.tensor([segments_ids])
+    # Tokens were manually added with no pads; everything should be paid attention to, which is value of 1
+    attention_masks = torch.tensor([[1] * len(indexed_tokens)])
 
     # Run the text through BERT, and collect all of the hidden states produced
     # from all 12 layers.
     with torch.no_grad():
-        outputs = trained_model(tokens_tensor, segments_tensors)
+        outputs = trained_model(tokens_tensor, attention_masks)
 
         # Evaluating the model will return a different number of objects based on
         # how it's configured in the trained model.
@@ -45,14 +46,14 @@ def getTokenEmbeddings(trained_model, indexed_tokens, segments_ids):
     return token_embeddings
 
 
-def indexAndSetSegmentIds(tokenizer_name: str, sentence: str):
+def tokenizeSentence(tokenizer_name: str, sentence: str):
     """
     Maps the token strings to vocabulary indices
     and mark the tokens
 
     :param tokenizer_name: The name of the tokenizer
     :param sentence: A given sentence
-    :return: Indexed tokens and segment IDs
+    :return: Text with tokens and their indices
     """
 
     # Load pre-trained model tokenizer with a given name
@@ -67,10 +68,7 @@ def indexAndSetSegmentIds(tokenizer_name: str, sentence: str):
     # Map the token strings to their vocabulary indices.
     indexed_tokens = tokenizer.convert_tokens_to_ids(tokenized_text)
 
-    # Mark each of the tokens as belonging to sentence "1", as each element is 1 sentence.
-    segments_ids = [1] * len(tokenized_text)
-
-    return tokenized_text, indexed_tokens, segments_ids
+    return tokenized_text, indexed_tokens
 
 
 def embedSentence(trained_model, tokenizer_name: str, sentence: str):
@@ -84,8 +82,8 @@ def embedSentence(trained_model, tokenizer_name: str, sentence: str):
     :return: A list of vectors that represents the words in the sentence
     """
 
-    tokenized_text, indexed_tokens, segments_ids = indexAndSetSegmentIds(tokenizer_name, sentence)
-    token_embeddings = getTokenEmbeddings(trained_model, indexed_tokens, segments_ids)
+    tokenized_text, indexed_tokens = tokenizeSentence(tokenizer_name, sentence)
+    token_embeddings = getTokenEmbeddings(trained_model, indexed_tokens)
 
     # Stores the token vectors
     token_vecs_cat = []
@@ -118,7 +116,7 @@ def embedWords(csvLoc: str, bert_version: str):
     all_subwords = []
     all_vectors = []
 
-    # used to remove separators and some special characters that appear in descriptions
+    # used to remove tokens and some special characters that appear in descriptions
     remove_words = {"[CLS]", "[SEP]", ",", '"', "'", ";", ":", "!", "$", "^"}
     for i in range(df_length):
         paragraph = str(df.iloc[i, 1])
