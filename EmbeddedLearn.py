@@ -3,6 +3,9 @@
 # https://is-rajapaksha.medium.com/bert-word-embeddings-deep-dive-32f6214f02bf
 # https://huggingface.co/docs/transformers/main_classes/tokenizer
 
+# Source for using flair:
+# https://github.com/flairNLP/flair/blob/master/resources/docs/embeddings/TRANSFORMER_EMBEDDINGS.md
+
 import torch
 from transformers import BertTokenizer, BertModel
 import pandas as pd
@@ -85,19 +88,23 @@ def embedSentence(trained_model, tokenizer_name: str, sentence: str):
     tokenized_text, indexed_tokens = tokenizeSentence(tokenizer_name, sentence)
     token_embeddings = getTokenEmbeddings(trained_model, indexed_tokens)
 
-    # Stores the token vectors
-    token_vecs_cat = []
+    # Stores the token vectors, with shape [22 x 768]
+    token_vecs_sum = []
+
+    # For each token in the sentence...
+    # `token_embeddings` is a [22 x 12 x 768] tensor.
 
     # For each token in the sentence...
     for token in token_embeddings:
-        # Concatenate the vectors from the last four layers.
-        # Each layer vector is 768 values, so `cat_vec` is length 3,072.
-        cat_vec = torch.cat((token[-1], token[-2], token[-3], token[-4]), dim=0)
+        # `token` is a [12 x 768] tensor
 
-        # Use `cat_vec` to represent `token`.
-        token_vecs_cat.append(cat_vec)
+        # Sum the vectors from the last four layers.
+        sum_vec = torch.sum(token[-4:], dim=0)
 
-    return tokenized_text, token_vecs_cat
+        # Use `sum_vec` to represent `token`.
+        token_vecs_sum.append(sum_vec)
+
+    return tokenized_text, token_vecs_sum
 
 
 def embedWords(csvLoc: str, bert_version: str):
