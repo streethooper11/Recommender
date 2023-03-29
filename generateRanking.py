@@ -1,4 +1,4 @@
-import ProcessList
+import processList
 
 def generateRanking(clusters, actors, topNum):
     cluster_actor_dict, index = ProcessList.createDictionary_ClustersAndActors(clusters, actors)

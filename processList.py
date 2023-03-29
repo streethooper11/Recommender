@@ -1,18 +1,18 @@
 import numpy as np
 
 
-def eliminateStopWords(subwords, tensors, stopWordsLoc):
+def eliminateStopWords(actors, subwords, tensors, stopWordsLoc):
     # Read all stopwords by splitting them with whitespaces
     stopwords = set(open(stopWordsLoc).read().split())
 
     # Take all tensors as long as the matching subwords is not a stopword
-    result = [t for s, t in zip(subwords, tensors)
+    result = [t for a, s, t in zip(actors, subwords, tensors)
               if s not in stopwords]
 
     return result
 
 
-def tensorsToNumpy(subwords, tensors, save_loc, stopWordsLoc):
+def tensorsToNumpy(actors, subwords, tensors, save_loc, stopWordsLoc):
 #    filtered_tensors = eliminateStopWords(subwords, tensors)
 
     # Change vectors to a numpy array
