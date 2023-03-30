@@ -6,10 +6,13 @@ This can be used separately if you wish to re-use your training set's embeddings
 """
 
 import numpy as np
+import pandas as pd
 import embeddedLearn
 import clustering
 import preprocess
+import actorInfoGeneration
 import generateRanking
+import processList
 
 roleDescriptionLoc = 'Roles.csv'
 movieRatingLoc = 'Movies.csv'
@@ -23,14 +26,22 @@ stopWordsLoc = ''
 _, input_subwords, input_vectors = embeddedLearn.embedWords(inputRoleDescriptionLoc, 'bert-base-uncased')
 # Remove stop words from the embeddings
 _, input_vectors = preprocess.eliminateStopWords(None, input_subwords, input_vectors, stopWordsLoc)
+input_vectors = processList.inputVectorsToNumpy(input_vectors)
 
 # combine training and input to cluster them together
-cluster_tensors = np.concatenate((np.load(trainingDataLoc), input_vectors))
+train_DF = pd.read_csv(trainingDataLoc)
+train_actors = train_DF["actors"].to_numpy()
+train_vectors = train_DF["vectors"].to_numpy()
+cluster_vectors = np.concatenate((train_vectors, input_vectors))
 
 # cluster data
-cluster_data = clustering.dbscanClustering(cluster_tensors)
+cluster_data = clustering.dbscanClustering(cluster_vectors)
 
-# generate ranks
-top_actor_list = generateRanking(cluster_data, train_actors, 5)
+# generate actor information with name, cluster information, and average rating
+result_clusters, result_ratings, result_appearance = \
+    actorInfoGeneration.createDictionary_ClustersActorsRatings(cluster_data, train_actors, movieRatingLoc)
 
-# TODO: print? ranks
+# TODO: generate ranks
+top_actor_list = generateRanking.generateRanking(cluster_data, train_actors, 5)
+
+# TODO: print ranks

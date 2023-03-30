@@ -1,60 +1,53 @@
 #!/usr/bin/env python3
 """
-Responsible for generating actor information
+Responsible for generating actor information with cluster information,
 """
 
-import numpy as np
+import pandas as pd
 
-
-def eliminateStopWords(actors, subwords, tensors, stopWordsLoc):
-    # Read all stopwords by splitting them with whitespaces
-    stopwords = set(open(stopWordsLoc).read().split())
-
-    # Take all tensors as long as the matching subwords is not a stopword
-    result = [t for a, s, t in zip(actors, subwords, tensors)
-              if s not in stopwords]
-
-    return result
-
-
-def tensorsToNumpy(actors, subwords, tensors, save_loc, stopWordsLoc):
-#    filtered_tensors = eliminateStopWords(subwords, tensors)
-
-    # Change vectors to a numpy array
-    x = []
-    for eachTensor in tensors:
-        x.append(eachTensor.tolist())
-    x = np.array(x)
-
-    np.save(save_loc, x)
-
-    return None
-
-
-def createDictionary_ClustersAndActors(clusters, actors):
+def createDictionary_ClustersActorsRatings(clusters, actors, ratingCsvLoc):
     """
     Creates a dictionary from a list of clusters and a list of actors
 
-    :param actors: List of actors
     :param clusters: List of clusters
-    :return: A dictionary that consists of clusters as keys and a dictionary of actors and count as values
+    :param actors: List of actors to be used in clusters
+    :param ratingCsvLoc: CSV file of movie ratings that each actor participated in
+    :return: A dictionary with cluster information, a dictionary with total movie ratings, a dictionary with
+            number of actor appearance with movie ratings
     """
 
-    result = dict()
-    i = 0
+    result_clusters = dict()
+    result_ratings = dict()
+    result_appearance = dict()
 
-    while i < range(len(actors)):
-        # make sure a cluster is assigned
+    # aggregate cluster counts
+    for i in range(len(actors)):
+        # Check if this is the first time the actor appears
+        if actors[i] not in result_clusters:
+            result_clusters[actors[i]] = dict()
+
         if clusters[i] != -1:
-            # create a new list if this is the first time the cluster appears
-            if clusters[i] not in result:
-                result[clusters[i]] = dict()
-
-            # create a new key-value pair if this is the first time the actor appears in the cluster with count as 0
-            if actors[i] not in result[clusters[i]]:
-                result[clusters[i]][actors[i]] = 0
+            # If this is the first time the cluster appears, initialize it as 0
+            if clusters[i] not in result_clusters[actors[i]]:
+                result_clusters[actors[i]][clusters[i]] = 0
 
             # increase count by 1
-            result[clusters[i]][actors[i]] += 1
+            result_clusters[actors[i]][clusters[i]] += 1
 
-    return result, i
+    # aggregate movie ratings and appearance
+    # The csv has name,movie name,rating format; we ignore movie name
+    # Convert to numpy as it is easier to iterate
+    df = pd.read_csv(ratingCsvLoc)
+    actor_names = df.iloc[:, 0].to_numpy()
+    each_rating = df.iloc[:, 2].to_numpy()
+
+    for i in range(actor_names.size):
+        # Check if this is the first time the actor appears
+        if actor_names[i] not in result_ratings:
+            result_ratings[actor_names[i]] = 0
+            result_appearance[actor_names[i]] = 0
+
+        result_ratings[actor_names[i]] += each_rating[i]
+        result_appearance[actor_names[i]] += 1
+
+    return result_clusters, result_ratings, result_appearance
