@@ -5,7 +5,7 @@ This can be used separately if you wish to update the embeddings for the trainin
 """
 
 import embeddedLearn
-import processList
+import preprocess
 
 roleDescriptionLoc = 'Roles.csv'
 trainingVectorLoc = 'trainVectors.npy'

@@ -1,8 +1,20 @@
 #!/usr/bin/env python3
 """
-Responsible for processing and creating data structures and saving numpy arrays to files.
+Responsible for generating actor information
 """
+
 import numpy as np
+
+
+def eliminateStopWords(actors, subwords, tensors, stopWordsLoc):
+    # Read all stopwords by splitting them with whitespaces
+    stopwords = set(open(stopWordsLoc).read().split())
+
+    # Take all tensors as long as the matching subwords is not a stopword
+    result = [t for a, s, t in zip(actors, subwords, tensors)
+              if s not in stopwords]
+
+    return result
 
 
 def tensorsToNumpy(actors, subwords, tensors, save_loc, stopWordsLoc):

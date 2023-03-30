@@ -8,7 +8,7 @@ If you wish to continue from embedding the training set run mainPart3_inputClust
 import numpy as np
 import embeddedLearn
 import clustering
-import processList
+import preprocess
 import generateRanking
 
 roleDescriptionLoc = 'Roles.csv'
@@ -20,11 +20,11 @@ stopWordsLoc = ''
 
 # embed words for training with pre-trained BERT model
 train_actors, train_subwords, train_vectors = embeddedLearn.embedWords(roleDescriptionLoc, 'bert-base-uncased')
-processList.tensorsToNumpy(train_subwords, train_vectors, trainingVectorLoc, stopWordsLoc)
+preprocess.tensorsToNumpy(train_subwords, train_vectors, trainingVectorLoc, stopWordsLoc)
 
 # embed words used for input with pre-trained BERT model
 _, input_subwords, input_vectors = embeddedLearn.embedWords(inputRoleDescriptionLoc, 'bert-base-uncased')
-processList.tensorsToNumpy(input_subwords, input_vectors, inputVectorLoc, stopWordsLoc)
+preprocess.tensorsToNumpy(input_subwords, input_vectors, inputVectorLoc, stopWordsLoc)
 
 # combine training and input to cluster them together
 cluster_tensors = np.concatenate((np.load(trainingVectorLoc), np.load(inputVectorLoc)))

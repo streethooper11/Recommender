@@ -1,3 +1,7 @@
+#!/usr/bin/env python3
+"""
+File responsible for clustering
+"""
 # Source for clustering using BERT vectors:
 # https://scikit-learn.org/stable/modules/generated/sklearn.cluster.DBSCAN.html
 # https://techblog.assignar.com/how-to-use-bert-sentence-embedding-for-clustering-text/

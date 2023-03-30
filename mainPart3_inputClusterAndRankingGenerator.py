@@ -8,7 +8,7 @@ This can be used separately if you wish to re-use your training set's embeddings
 import numpy as np
 import embeddedLearn
 import clustering
-import processList
+import preprocess
 import generateRanking
 
 roleDescriptionLoc = 'Roles.csv'

@@ -1,10 +1,11 @@
+#!/usr/bin/env python3
+"""
+File responsible for word embedding using BERT
+"""
 # Source for using BERT:
 # https://mccormickml.com/2019/05/14/BERT-word-embeddings-tutorial/
 # https://is-rajapaksha.medium.com/bert-word-embeddings-deep-dive-32f6214f02bf
 # https://huggingface.co/docs/transformers/main_classes/tokenizer
-
-# Source for using flair:
-# https://github.com/flairNLP/flair/blob/master/resources/docs/embeddings/TRANSFORMER_EMBEDDINGS.md
 
 import torch
 from transformers import BertTokenizer, BertModel
@@ -88,23 +89,27 @@ def embedSentence(trained_model, tokenizer_name: str, sentence: str):
     tokenized_text, indexed_tokens = tokenizeSentence(tokenizer_name, sentence)
     token_embeddings = getTokenEmbeddings(trained_model, indexed_tokens)
 
-    # Stores the token vectors, with shape [22 x 768]
-    token_vecs_sum = []
+    # The last 4 layers are concatenated, as they give out the highest f1 measure
+    # Source: https://is-rajapaksha.medium.com/bert-word-embeddings-deep-dive-32f6214f02bf
 
-    # For each token in the sentence...
+    # Stores the token vectors, with shape [22 x 3,072]
+    token_vecs_cat = []
+
     # `token_embeddings` is a [22 x 12 x 768] tensor.
 
     # For each token in the sentence...
     for token in token_embeddings:
         # `token` is a [12 x 768] tensor
 
-        # Sum the vectors from the last four layers.
-        sum_vec = torch.sum(token[-4:], dim=0)
+        # Concatenate the vectors (that is, append them together) from the last
+        # four layers.
+        # Each layer vector is 768 values, so `cat_vec` is length 3,072.
+        cat_vec = torch.cat((token[-1], token[-2], token[-3], token[-4]), dim=0)
 
-        # Use `sum_vec` to represent `token`.
-        token_vecs_sum.append(sum_vec)
+        # Use `cat_vec` to represent `token`.
+        token_vecs_cat.append(cat_vec)
 
-    return tokenized_text, token_vecs_sum
+    return tokenized_text, token_vecs_cat
 
 
 def embedWords(csvLoc: str, bert_version: str):
@@ -123,25 +128,27 @@ def embedWords(csvLoc: str, bert_version: str):
     all_subwords = []
     all_vectors = []
 
-    # used to remove tokens and some special characters that appear in descriptions
-    remove_words = {"[CLS]", "[SEP]", ",", '"', "'", ";", ":", "!", "$", "^"}
+    # Word embedding each sentence could be done easily using flairNLP \
+    # (https://github.com/flairNLP/flair/blob/master/resources/docs/embeddings/TRANSFORMER_EMBEDDINGS.md)
+    # and their encode_plus library.
+    # However, we remove stop words, special tokens and punctuations before clustering,
+    # which requires matching with the subwords in the same index
+    # therefore, we will process the word embedding manually so that subwords can be compared with the stop words
+    # and the correct index may be eliminated when preprocessing.
+
     for i in range(df_length):
         paragraph = str(df.iloc[i, 1])
-        sentences = paragraph.split(".")
-        actor_paragraph = str(df.iloc[i, 0])
+        sentences = paragraph.split(".")  # split paragraph into sentences
+        actor_paragraph = str(df.iloc[i, 0])  # actor name of the paragraph
 
         word_token_paragraph = []
         vector_paragraph = []
-        for sentence in sentences:
-            word_token_sentence, vector_sentence = embedSentence(model, bert_version, re.sub(r"\[.*]", "", sentence))
-            word_token_paragraph.extend(word_token_sentence)  # Add a list of words from the sentence
-            vector_paragraph.extend(vector_sentence)  # Get BERT tensors from the sentence
 
-        # remove tensors for separators, some special characters, and 1-length characters
-        info_paragraph = [t for t in zip(word_token_paragraph, vector_paragraph)
-                          if (t[0] not in remove_words) and (len(t[0]) > 1)]
-        # then split into lists again
-        word_token_paragraph, vector_paragraph = zip(*info_paragraph)
+        for sentence in sentences:
+            # Work on each sentence; remove [*] to remove references such as [1]
+            word_token_sentence, vector_sentence = embedSentence(model, bert_version, re.sub(r"\[.*]", "", sentence))
+            word_token_paragraph.extend(word_token_sentence)  # Add a list of sub words from the sentence
+            vector_paragraph.extend(vector_sentence)  # Get BERT tensors from the sentence
 
         for j in range(len(word_token_paragraph)):
             all_actors.append(actor_paragraph)

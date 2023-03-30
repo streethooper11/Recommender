@@ -1,4 +1,8 @@
-import processList
+#!/usr/bin/env python3
+"""
+File responsible for creating actor ranking for the recommendation system.
+"""
+import preprocess
 
 def generateRanking(clusters, actors, topNum):
     cluster_actor_dict, index = ProcessList.createDictionary_ClustersAndActors(clusters, actors)
