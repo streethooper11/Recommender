@@ -131,29 +131,54 @@ def embedWords(csvLoc: str, bert_version: str):
     # Word embedding each sentence could be done easily using flairNLP \
     # (https://github.com/flairNLP/flair/blob/master/resources/docs/embeddings/TRANSFORMER_EMBEDDINGS.md)
     # and their encode_plus library.
-    # However, we remove stop words, special tokens and punctuations before clustering,
-    # which requires matching with the subwords in the same index
-    # therefore, we will process the word embedding manually so that subwords can be compared with the stop words
-    # and the correct index may be eliminated when preprocessing.
+    # However, it does not provide the tokens; aka the subwords that BERT creates in the middle.
+    # We preprocess to remove stop words, special tokens and punctuations before clustering,
+    # which requires comparing stopwords with the subwords in the same index with actor names and embeddings
+    # therefore, we will process the word embedding manually, such that we keep track of the subwords.
 
-    for i in range(df_length):
-        paragraph = str(df.iloc[i, 1])
-        sentences = paragraph.split(".")  # split paragraph into sentences
-        actor_paragraph = str(df.iloc[i, 0])  # actor name of the paragraph
+    columnNum = len(df.columns)
 
-        word_token_paragraph = []
-        vector_paragraph = []
+    # If the number of columns is 2, it means it's a training data and role description is on the second column
+    # and actor names on the first column
+    # If the number of columns is 1, it means it's a testing/evaluation data and role description is on the
+    # first column and no actor names
+    if columnNum == 2:
+        for i in range(df_length):
+            paragraph = str(df.iloc[i, 1])
+            sentences = paragraph.split(".")  # split paragraph into sentences
+            actor_paragraph = str(df.iloc[i, 0])  # actor name of the paragraph
 
-        for sentence in sentences:
-            # Work on each sentence; remove [*] to remove references such as [1]
-            word_token_sentence, vector_sentence = embedSentence(model, bert_version, re.sub(r"\[.*]", "", sentence))
-            word_token_paragraph.extend(word_token_sentence)  # Add a list of sub words from the sentence
-            vector_paragraph.extend(vector_sentence)  # Get BERT tensors from the sentence
+            word_token_paragraph = []
+            vector_paragraph = []
 
-        for j in range(len(word_token_paragraph)):
-            all_actors.append(actor_paragraph)
+            for sentence in sentences:
+                # Work on each sentence; remove [*] to remove references such as [1]
+                word_token_sentence, vector_sentence = embedSentence(model, bert_version,
+                                                                     re.sub(r"\[.*]", "", sentence))
+                word_token_paragraph.extend(word_token_sentence)  # Add a list of sub words from the sentence
+                vector_paragraph.extend(vector_sentence)  # Get BERT tensors from the sentence
 
-        all_subwords.extend(word_token_paragraph)  # Add a list of words from the paragraph
-        all_vectors.extend(vector_paragraph)  # Get BERT tensors from the paragraph
+            for j in range(len(word_token_paragraph)):
+                all_actors.append(actor_paragraph)
+
+            all_subwords.extend(word_token_paragraph)  # Add a list of words from the paragraph
+            all_vectors.extend(vector_paragraph)  # Get BERT tensors from the paragraph
+    else:
+        for i in range(df_length):
+            paragraph = str(df.iloc[i, 0])
+            sentences = paragraph.split(".")  # split paragraph into sentences
+
+            word_token_paragraph = []
+            vector_paragraph = []
+
+            for sentence in sentences:
+                # Work on each sentence; remove [*] to remove references such as [1]
+                word_token_sentence, vector_sentence = embedSentence(model, bert_version,
+                                                                     re.sub(r"\[.*]", "", sentence))
+                word_token_paragraph.extend(word_token_sentence)  # Add a list of sub words from the sentence
+                vector_paragraph.extend(vector_sentence)  # Get BERT tensors from the sentence
+
+            all_subwords.extend(word_token_paragraph)  # Add a list of words from the paragraph
+            all_vectors.extend(vector_paragraph)  # Get BERT tensors from the paragraph
 
     return all_actors, all_subwords, all_vectors
