@@ -12,7 +12,7 @@ def eliminateStopWords(actors, subwords, tensors, stopWordsLoc):
     return result
 
 
-def tensorsToNumpy(actors, subwords, tensors, save_loc, stopWordsLoc):
+def tensorsToNumpy(subwords, tensors, save_loc, stopWordsLoc):
 #    filtered_tensors = eliminateStopWords(subwords, tensors)
 
     # Change vectors to a numpy array

@@ -10,6 +10,8 @@ import embeddedLearn
 import clustering
 import processList
 import generateRanking
+import extractTerms
+import pandas as pd
 
 roleDescriptionLoc = 'Roles.csv'
 movieRatingLoc = 'Movies.csv'
@@ -31,6 +33,8 @@ cluster_tensors = np.concatenate((np.load(trainingVectorLoc), np.load(inputVecto
 
 # cluster data
 cluster_data = clustering.dbscanClustering(cluster_tensors)
+
+#get dataframe of input subwords and cluster values
 
 # generate ranks
 top_actor_list = generateRanking.generateRanking(cluster_data, train_actors, 5)
