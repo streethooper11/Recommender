@@ -5,7 +5,7 @@ Responsible for preprocessing such as eliminating words. Also saves the result i
 import numpy as np
 
 
-def eliminateStopWords(actors: list[str], subwords: list[str], vectors: list, stopWordsLoc):
+def eliminateStopWords(all_subwords: list, all_vectors: list, stopWordsLoc):
     # Read all stopwords by splitting them with whitespaces
 #    stopwords = set(open(stopWordsLoc).read().split())
     # used to remove tokens and some special characters that may appear in descriptions
@@ -13,18 +13,14 @@ def eliminateStopWords(actors: list[str], subwords: list[str], vectors: list, st
 
 #    stopwords.update(remove_words)  # Combine the two sets
 
-    if actors is None:
-        # no actor information; this is input data. Only remove vector data
-        # reverse loop to make sure there are no problems when deleting elements
-        for i in range(len(subwords) - 1, -1, -1):
-            if (subwords[i] in remove_words) or (len(subwords[i]) <= 1):
-                vectors.pop(i)
-    else:
-        # remove actor data and vector data in the index in which the subwords element is a stop word
-        # reverse loop to make sure there are no problems when deleting elements
-        for i in range(len(subwords) - 1, -1, -1):
-            if (subwords[i] in remove_words) or (len(subwords[i]) <= 1):
-                actors.pop(i)
-                vectors.pop(i)
+    for i in range(len(all_subwords)):
+        each_subword_list = all_subwords[i]
+        each_vector_list = all_vectors[i]
 
-    return actors, vectors
+        # remove vector data in the index in which the subwords element is a stop word
+        # reverse loop to make sure there are no problems when deleting elements
+        for j in range(len(each_subword_list) - 1, -1, -1):
+            if (each_subword_list[j] in remove_words) or (len(each_subword_list[j]) <= 1):
+                each_vector_list.pop(j)
+
+    return all_vectors

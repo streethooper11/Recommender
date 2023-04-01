@@ -23,9 +23,9 @@ stopWordsLoc = ''
 # load training vector
 
 # embed words used for input with pre-trained BERT model
-_, input_subwords, input_vectors = embeddedLearn.embedWords(inputRoleDescriptionLoc, 'bert-base-uncased')
+input_actors, input_subwords, input_vectors = embeddedLearn.embedWords(inputRoleDescriptionLoc, 'bert-base-uncased')
 # Remove stop words from the embeddings
-_, input_vectors = preprocess.eliminateStopWords(None, input_subwords, input_vectors, stopWordsLoc)
+input_actors, input_vectors = preprocess.eliminateStopWords(None, input_subwords, input_vectors, stopWordsLoc)
 input_vectors = processList.inputVectorsToNumpy(input_vectors)
 
 # combine training and input to cluster them together
