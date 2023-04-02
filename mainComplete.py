@@ -20,7 +20,7 @@ roleDescriptionLoc = 'Roles.csv'
 movieRatingLoc = 'Movies.csv'
 inputRoleDescriptionLoc = 'input.csv'
 trainingDataLoc = 'trainedData.csv'
-stopWordsLoc = ''
+stopWordsLoc = 'Roles.csv'
 
 # Load pre-trained model (weights)
 model = BertModel.from_pretrained('bert-base-uncased',
@@ -45,46 +45,33 @@ up_train_vectors = processList.convertTensors(train_actors, up_train_vectors, tr
 unroll_train_actors, train_vec_numpy = processList.unrollVecAndNumpy(train_actors, up_train_vectors)
 
 
-# Input will be different as we should not read all the content.
-# Instead, it will do the following:
-# 1. Embed words of all role descriptions in the file
-# 2. Preprocess all the output
-# 3. Get embeddings of a single role description
-# 4. Cluster with the trained data
-# 5. Loop Steps 3 and 4 for each role description, so that input data do not cluster against one another
-# input_actors, input_subwords, input_vectors = embeddedLearn.embedWords(inputRoleDescriptionLoc, model, tokenizer)
-# up_input_vectors = preprocess.eliminateStopWords(input_subwords, input_vectors, stopWordsLoc)
-# up_input_vectors = processList.convertTensors(input_actors, up_input_vectors, None)
-# for i in len(input_actors):
-#     unroll_input_actor, input_vec_numpy = processList.unrollVecAndNumpy(input_actors[i], up_input_vectors[i])
+# We work with each input role description separately, but embeddings can be done as a whole
+# Get all embeddings for all input role descriptions, and remove stop words from all of them
+input_actors, input_subwords, input_vectors = embeddedLearn.embedWords(inputRoleDescriptionLoc, model, tokenizer)
+up_input_vectors = preprocess.eliminateStopWords(input_subwords, input_vectors, stopWordsLoc)
+up_input_vectors = processList.convertTensors(input_actors, up_input_vectors, None)
 
-#     combine training and input to cluster them together
-#     cluster_vectors = np.concatenate(train_vec_numpy, input_vec_numpy)
-#     cluster data
-#     cluster_data = clustering.dbscanClustering(cluster_vectors)
+# Steps:
+# 1. Get embeddings of a single role description
+# 2. Cluster with the trained data
+# 3. Extract query terms
+# 4. Using the query terms, generate ranking and recommend the first n actors
+# 5. If the actor name for the input data is one of the top n actors, we have a match
+# 6. Loop Steps 1-4 for each role description separately, so that input data do not cluster against one another
+numMatch = 0 # number of times the actor name provided as the output in the testing data was predicted
+for i in len(input_actors):
+    unroll_input_actor, input_vec_numpy = processList.unrollVecAndNumpy(input_actors[i], up_input_vectors[i])
+    cluster_vectors = np.concatenate(train_vec_numpy, input_vec_numpy)
+    cluster_data = clustering.dbscanClustering(cluster_vectors)
 
-#     generate actor information with name, cluster information, and average rating
-#     result_clusters, result_ratings, result_appearance = \
-#         actorInfoGeneration.createDictionary_ClustersActorsRatings(cluster_data, unroll_train_actors, movieRatingLoc)
+    result_clusters, result_ratings, result_appearance = \
+        actorInfoGeneration.createDictionary_ClustersActorsRatings(cluster_data, unroll_train_actors, movieRatingLoc)
 
-#     top_actor_list = generateRanking.generateRanking(cluster_data, train_actors, 5)
-#     print(top_actor_list)
-#
+    top_actor_list = generateRanking.generateRanking(cluster_data, train_actors, 5)
+    print(top_actor_list)
+    if input_actors[i] in top_actor_list:
+        numMatch += 1
 
-
-cluster_vectors = train_vec_numpy
-
-# cluster data
-cluster_data = clustering.dbscanClustering(cluster_vectors)
-
-# generate actor information with name, cluster information, and average rating
-result_clusters, result_ratings, result_appearance = \
-    actorInfoGeneration.createDictionary_ClustersActorsRatings(cluster_data, unroll_train_actors, movieRatingLoc)
-
-# TODO: generate ranks
-top_actor_list = generateRanking.generateRanking(cluster_data, train_actors, 5)
-
-# TODO: print ranks
-print(top_actor_list)
-
-# TODO: accuracy
+# Get the accuracy
+accuracy = numMatch / len(input_actors)
+print(accuracy)
