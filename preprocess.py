@@ -21,6 +21,7 @@ def eliminateStopWords(all_subwords: list, all_vectors: list, stopWordsLoc):
         # reverse loop to make sure there are no problems when deleting elements
         for j in range(len(each_subword_list) - 1, -1, -1):
             if (each_subword_list[j] in remove_words) or (len(each_subword_list[j]) <= 1):
+                each_subword_list.pop(j)
                 each_vector_list.pop(j)
 
-    return all_vectors
+    return all_subwords, all_vectors

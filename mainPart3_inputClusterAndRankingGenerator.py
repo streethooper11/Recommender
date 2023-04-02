@@ -5,21 +5,25 @@ clustering with the training set from the savefile and generating rank afterward
 This can be used separately if you wish to re-use your training set's embeddings with new inputs.
 """
 
+import json
 import numpy as np
 import pandas as pd
 import embeddedLearn
 import clustering
+import extractTerms
 import preprocess
 import actorInfoGeneration
 import generateRanking
 import processList
 from transformers import BertTokenizer, BertModel
 
-roleDescriptionLoc = 'Roles.csv'
 movieRatingLoc = 'Movies.csv'
-inputRoleDescriptionLoc = 'input.csv'
-trainingDataLoc = 'trainedData.csv'
+inputRoleDescriptionLoc = 'Roles.csv'
+trainVectorsLoc = 'trainVectors.csv'
+trainActorCountsLoc = 'trainActorCounts.json'
+testingDataloc = 'testingData.csv'
 stopWordsLoc = ''
+
 
 # Load pre-trained model (weights)
 model = BertModel.from_pretrained('bert-base-uncased',
@@ -32,22 +36,29 @@ model.eval()
 # Load pre-trained model tokenizer with a given bert version
 tokenizer = BertTokenizer.from_pretrained('bert-base-uncased')
 
-# Load the trained data saved
-df = pd.read_csv(stopWordsLoc)
-train_actors = df.iloc[:, 0].tolist()
-up_train_vectors = df.iloc[:, 1].tolist()
+# Load the trained data saved; they are already unrolled
+df = pd.read_csv(trainVectorsLoc)
+unroll_train_actors = df.iloc[:, 1].tolist()
+train_vec_numpy = df.iloc[:, 2].to_numpy()
 
-# As clustering takes 1D numpy array, the 2D list for vectorsneeds to be unrolled
-# At the same time, each vector will be converted to numpy array
-unroll_train_actors, train_vec_numpy = processList.unrollVecAndNumpy(train_actors, up_train_vectors)
+print(train_vec_numpy)
+print(train_vec_numpy.shape)
 
 
+# WORD EMBEDDING FOR INPUT DATA
 # We work with each input role description separately, but embeddings can be done as a whole
 # Get all embeddings for all input role descriptions, and remove stop words from all of them
-input_actors, input_subwords, input_vectors = embeddedLearn.embedWords(inputRoleDescriptionLoc, model, tokenizer)
-up_input_vectors = preprocess.eliminateStopWords(input_subwords, input_vectors, stopWordsLoc)
-up_input_vectors = processList.convertTensors(input_actors, up_input_vectors, None)
+input_actors, input_subwords, input_vectors, _ = embeddedLearn.embedWords(inputRoleDescriptionLoc, model, tokenizer)
+# Remove stop words from the embeddings and get it back
+up_input_subwords, up_input_vectors = preprocess.eliminateStopWords(input_subwords, input_vectors, stopWordsLoc)
+# Convert tensors to a regular 2D list and get it back
+# Input data will not be unrolled as each element is a role description and should be used as one.
+up_input_vectors = processList.convertTensors(input_actors, up_input_vectors)
+# Save for testing purposes to see if it works correctly
+processList.saveActorAndVectors(input_actors, up_input_vectors, testingDataloc)
 
+
+# CLUSTERING TO RANKING GENERATION
 # Steps:
 # 1. Get embeddings of a single role description
 # 2. Cluster with the trained data
@@ -55,20 +66,34 @@ up_input_vectors = processList.convertTensors(input_actors, up_input_vectors, No
 # 4. Using the query terms, generate ranking and recommend the first n actors
 # 5. If the actor name for the input data is one of the top n actors, we have a match
 # 6. Loop Steps 1-4 for each role description separately, so that input data do not cluster against one another
+# Open saved actor counts as dictionary
+with open(trainActorCountsLoc, 'r') as f:
+    actor_counts = json.load(f)
+
 numMatch = 0 # number of times the actor name provided as the output in the testing data was predicted
-for i in len(input_actors):
-    unroll_input_actor, input_vec_numpy = processList.unrollVecAndNumpy(input_actors[i], up_input_vectors[i])
-    cluster_vectors = np.concatenate(train_vec_numpy, input_vec_numpy)
+for i in range(len(input_actors)):
+    actor_name = input_actors[i]
+
+    cluster_vectors = np.concatenate((train_vec_numpy, np.array(up_input_vectors[i])))
     cluster_data = clustering.dbscanClustering(cluster_vectors)
 
-    result_clusters, result_ratings, result_appearance = \
+    result_clusters, result_ratings, result_ratings_appearance = \
         actorInfoGeneration.createDictionary_ClustersActorsRatings(cluster_data, unroll_train_actors, movieRatingLoc)
 
-    top_actor_list = generateRanking.generateRanking(cluster_data, train_actors, 5)
-    print(top_actor_list)
-    if input_actors[i] in top_actor_list:
+    input_DF = extractTerms.combine_input_cluster(up_input_subwords[i], cluster_data)
+    query_result = extractTerms.extractTerms(k=5, df=input_DF)
+    query_clusters = [x[1] for x in query_result]  # list comprehension to make a list of clusters only
+
+    print(query_clusters)  # test
+
+    top_actor_list = generateRanking.generateRanking \
+        (query_clusters, result_clusters, actor_counts, result_ratings, result_ratings_appearance, 5)
+
+    print("Recommended actors: ", top_actor_list)
+    if actor_name in top_actor_list:
         numMatch += 1
+        print("Name found!")
 
 # Get the accuracy
 accuracy = numMatch / len(input_actors)
-print(accuracy)
+print("Accuracy: ", accuracy)
