@@ -103,7 +103,7 @@ for i in range(len(input_actors)):
     print("Recommended actors: ", top_actor_list)
     if actor_name in top_actor_list:
         numMatch += 1
-        print("Name found!")
+        print("Name found!") # test
 
 # Get the accuracy
 accuracy = numMatch / len(input_actors)
