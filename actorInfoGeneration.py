@@ -18,7 +18,7 @@ def createDictionary_ClustersActorsRatings(clusters, actors, ratingCsvLoc):
 
     result_clusters = dict()
     result_ratings = dict()
-    result_appearance = dict()
+    result_ratings_appearance = dict()
 
     # aggregate cluster counts
     for i in range(len(actors)):
@@ -45,9 +45,9 @@ def createDictionary_ClustersActorsRatings(clusters, actors, ratingCsvLoc):
         # Check if this is the first time the actor appears
         if actor_names[i] not in result_ratings:
             result_ratings[actor_names[i]] = 0
-            result_appearance[actor_names[i]] = 0
+            result_ratings_appearance[actor_names[i]] = 0
 
         result_ratings[actor_names[i]] += each_rating[i]
-        result_appearance[actor_names[i]] += 1
+        result_ratings_appearance[actor_names[i]] += 1
 
-    return result_clusters, result_ratings, result_appearance
+    return result_clusters, result_ratings, result_ratings_appearance

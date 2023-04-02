@@ -136,6 +136,7 @@ def embedWords(csvLoc: str, model, tokenizer):
     all_actors = []
     all_subwords = []
     all_vectors = []
+    actor_counts = dict()
 
     for i in range(df_length):
         actor_name = str(df.iloc[i, 0])
@@ -144,5 +145,10 @@ def embedWords(csvLoc: str, model, tokenizer):
         all_actors.append(actor_name)
         all_subwords.append(token_paragraph)
         all_vectors.append(vector_paragraph)
+        # As the actor appeared in a role description increase count by 1
+        if actor_name not in actor_counts:
+            actor_counts[actor_name] = 0
 
-    return all_actors, all_subwords, all_vectors
+        actor_counts[actor_name] += 1
+
+    return all_actors, all_subwords, all_vectors, actor_counts

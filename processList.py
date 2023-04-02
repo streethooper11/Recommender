@@ -23,6 +23,14 @@ def convertTensors(actors: list, all_vectors: list, save_loc):
 
     return x
 
+def unrollSingleVecAndNumpy(vectors: list):
+    unrolled_vectors = []
+    for vec in vectors:
+        unrolled_vectors.append(vec)
+
+    unrolled_vectors = np.array(unrolled_vectors)
+
+    return unrolled_vectors
 
 def unrollVecAndNumpy(all_actors: list, all_vectors: list):
     # Change vectors to a numpy array, no saving
