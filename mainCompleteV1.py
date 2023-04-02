@@ -21,7 +21,7 @@ from transformers import BertTokenizer, BertModel
 
 roleDescriptionLoc = 'Roles.csv'
 movieRatingLoc = 'Movies.csv'
-inputRoleDescriptionLoc = 'Roles.csv'
+inputRoleDescriptionLoc = 'InputDescription.csv'
 trainVectorsLoc = 'trainVectors.csv'
 trainActorCountsLoc = 'trainActorCounts.json'
 testingDataloc = 'testingData.csv'
