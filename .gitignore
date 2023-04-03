@@ -1,2 +1,5 @@
 
 *.pyc
+testingData.csv
+trainActorCounts.json
+trainVectors.csv

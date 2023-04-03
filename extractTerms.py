@@ -19,6 +19,17 @@ def combine_input_cluster(input_subwords, cluster_data):
     df = pd.DataFrame(data = content)
     return df
 
+def back_to_string(words_list):
+    """
+    Recombines words from array into single string
+
+    :param words_list: list of subwords
+    """
+    description = ""
+    for word in words_list:
+        description += (word + " ")
+    return description
+
 def extractTerms(k, df):
     """
     returns the top k terms of extracting query terms
@@ -30,8 +41,10 @@ def extractTerms(k, df):
     terms = []
     only_words = df["subwords"].to_list()
 
+    description = back_to_string(only_words)
+
     vectorizer = TfidfVectorizer(use_idf= True)
-    response = vectorizer.fit_transform(only_words)
+    response = vectorizer.fit_transform([description])
     feature_names = vectorizer.get_feature_names_out()
 
     #get tfidf scores for input document
@@ -42,8 +55,15 @@ def extractTerms(k, df):
     sorted_by_scores = sorted(tfidf_scores.items(), key=lambda x:x[1], reverse=True)
     for i in range(k):
         term = sorted_by_scores[i]
-        for j in range(df.shape[0]):
-            if df.iloc[j]["subwords"] == term[0]:
-                terms.append((term[0],df.iloc[j]["cluster"]))
+        og_word = ""
+        for word in only_words:
+            if "##" in word and term[0] in word:
+                og_word = word
+                break
+            elif term[0] == word:
+                og_word = word
+                break
+        row = df.loc[(df["subwords"] == og_word)]
+        terms.append((term[0], row.iloc[0]["cluster"]))
 
     return terms
