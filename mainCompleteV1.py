@@ -85,25 +85,27 @@ numMatch = 0 # number of times the actor name provided as the output in the test
 for i in range(len(input_actors)):
     actor_name = input_actors[i]
 
-    cluster_vectors = np.concatenate((train_vec_numpy, np.array(up_input_vectors[i])))
-    cluster_data = clustering.dbscanClustering(cluster_vectors)
+    if actor_name in unroll_train_actors:
+        cluster_vectors = np.concatenate((train_vec_numpy, np.array(up_input_vectors[i])))
+        cluster_data = clustering.dbscanClustering(cluster_vectors)
 
-    result_clusters, result_ratings, result_ratings_appearance = \
-        actorInfoGeneration.createDictionary_ClustersActorsRatings(cluster_data, unroll_train_actors, movieRatingLoc)
+        result_clusters, result_ratings, result_ratings_appearance = \
+            actorInfoGeneration.createDictionary_ClustersActorsRatings(cluster_data, unroll_train_actors,
+                                                                       movieRatingLoc)
 
-    input_DF = extractTerms.combine_input_cluster(up_input_subwords[i], cluster_data)
-    query_result = extractTerms.extractTerms(k=5, df=input_DF)
-    query_clusters = [x[1] for x in query_result] # list comprehension to make a list of clusters only
+        input_DF = extractTerms.combine_input_cluster(up_input_subwords[i], cluster_data)
+        query_result = extractTerms.extractTerms(k=5, df=input_DF)
+        query_clusters = [x[1] for x in query_result]  # list comprehension to make a list of clusters only
 
-    print(query_clusters) # test
+        print(query_clusters)  # test
 
-    top_actor_list = generateRanking.generateRanking\
-        (query_clusters, result_clusters, actor_counts, result_ratings, result_ratings_appearance, 5)
+        top_actor_list = generateRanking.generateRanking \
+            (query_clusters, result_clusters, actor_counts, result_ratings, result_ratings_appearance, 5)
 
-    print("Recommended actors: ", top_actor_list)
-    if actor_name in top_actor_list:
-        numMatch += 1
-        print("Name found!") # test
+        print("Recommended actors: ", top_actor_list)
+        if actor_name in top_actor_list:
+            numMatch += 1
+            print("Name found!")  # test
 
 # Get the accuracy
 accuracy = numMatch / len(input_actors)
