@@ -12,7 +12,8 @@ from transformers import BertTokenizer, BertModel
 import numpy as np
 
 roleDescriptionLoc = 'Roles.csv'
-trainVectorsLoc = 'trainVectors.csv'
+trainActorsLoc = 'trainActors.npy'
+trainVectorsLoc = 'trainVectors.npy'
 trainActorCountsLoc = 'trainActorCounts.json'
 stopWordsLoc = ''
 
@@ -39,7 +40,7 @@ up_train_vectors = processList.convertTensors(train_actors, up_train_vectors)
 
 # As clustering takes 1D numpy array, the 2D list for vectors needs to be unrolled.
 # Unroll 2D list for vectors with matching actor names and save as a file for future reusability
-processList.unrollVecAndSave(train_actors, up_train_vectors, trainVectorsLoc)
+processList.unrollVecAndSave(train_actors, up_train_vectors, trainActorsLoc, trainVectorsLoc)
 
 
 # Save actor counts dictionary as a json file

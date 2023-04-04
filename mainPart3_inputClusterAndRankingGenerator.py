@@ -19,9 +19,9 @@ from transformers import BertTokenizer, BertModel
 
 movieRatingLoc = 'Movies.csv'
 inputRoleDescriptionLoc = 'InputDescription.csv'
-trainVectorsLoc = 'trainVectors.csv'
+trainActorsLoc = 'trainActors.npy'
+trainVectorsLoc = 'trainVectors.npy'
 trainActorCountsLoc = 'trainActorCounts.json'
-testingDataloc = 'testingData.csv'
 stopWordsLoc = ''
 
 
@@ -37,12 +37,8 @@ model.eval()
 tokenizer = BertTokenizer.from_pretrained('bert-base-uncased')
 
 # Load the trained data saved; they are already unrolled
-df = pd.read_csv(trainVectorsLoc)
-unroll_train_actors = df.iloc[:, 1].tolist()
-train_vec_numpy = df.iloc[:, 2].to_numpy()
-
-print(train_vec_numpy)
-print(train_vec_numpy.shape)
+unroll_train_actors = np.load(trainActorsLoc)
+train_vec_numpy = np.load(trainVectorsLoc)
 
 
 # WORD EMBEDDING FOR INPUT DATA
@@ -54,8 +50,6 @@ up_input_subwords, up_input_vectors = preprocess.eliminateStopWords(input_subwor
 # Convert tensors to a regular 2D list and get it back
 # Input data will not be unrolled as each element is a role description and should be used as one.
 up_input_vectors = processList.convertTensors(input_actors, up_input_vectors)
-# Save for testing purposes to see if it works correctly
-processList.saveActorAndVectors(input_actors, up_input_vectors, testingDataloc)
 
 
 # CLUSTERING TO RANKING GENERATION

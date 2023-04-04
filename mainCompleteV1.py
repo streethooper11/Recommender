@@ -22,9 +22,9 @@ from transformers import BertTokenizer, BertModel
 roleDescriptionLoc = 'Roles.csv'
 movieRatingLoc = 'Movies.csv'
 inputRoleDescriptionLoc = 'InputDescription.csv'
-trainVectorsLoc = 'trainVectors.csv'
+trainActorsLoc = 'trainActors.npy'
+trainVectorsLoc = 'trainVectors.npy'
 trainActorCountsLoc = 'trainActorCounts.json'
-testingDataloc = 'testingData.csv'
 stopWordsLoc = ''
 
 
@@ -52,8 +52,8 @@ up_train_vectors = processList.convertTensors(train_actors, up_train_vectors)
 
 # As clustering takes 1D numpy array, the 2D list for vectors needs to be unrolled.
 # Unroll 2D list for vectors with matching actor names and save as a file for future reusability
-unroll_train_actors, train_vec = processList.unrollVecAndSave(train_actors, up_train_vectors, trainVectorsLoc)
-train_vec_numpy = np.array(train_vec)
+unroll_train_actors, train_vec_numpy = processList.unrollVecAndSave\
+    (train_actors, up_train_vectors, trainActorsLoc, trainVectorsLoc)
 
 # Save actor counts dictionary as a json file for safety
 with open(trainActorCountsLoc, "w") as f:
@@ -69,8 +69,6 @@ up_input_subwords, up_input_vectors = preprocess.eliminateStopWords(input_subwor
 # Convert tensors to a regular 2D list and get it back
 # Input data will not be unrolled as each element is a role description and should be used as one.
 up_input_vectors = processList.convertTensors(input_actors, up_input_vectors)
-# Save for testing purposes to see if it works correctly
-processList.saveActorAndVectors(input_actors, up_input_vectors, testingDataloc)
 
 
 # PART 4-7: CLUSTERING TO RANKING GENERATION
