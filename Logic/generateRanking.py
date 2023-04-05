@@ -2,8 +2,6 @@
 """
 File responsible for creating actor ranking for the recommendation system.
 """
-import preprocess
-
 
 def calculateSimilarity(query_clusters, clusters):
     result = 0

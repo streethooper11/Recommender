@@ -2,6 +2,8 @@
 """
 File responsible for word embedding using BERT
 """
+import json
+
 # Source for using BERT:
 # https://mccormickml.com/2019/05/14/BERT-word-embeddings-tutorial/
 # https://is-rajapaksha.medium.com/bert-word-embeddings-deep-dive-32f6214f02bf
@@ -10,6 +12,8 @@ File responsible for word embedding using BERT
 import torch
 import pandas as pd
 import re
+
+from Logic import preprocess, processList
 
 
 def getTokenEmbeddings(trained_model, indexed_tokens):
@@ -152,3 +156,4 @@ def embedWords(csvLoc: str, model, tokenizer):
         actor_counts[actor_name] += 1
 
     return all_actors, all_subwords, all_vectors, actor_counts
+
