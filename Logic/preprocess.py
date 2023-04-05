@@ -1,17 +1,20 @@
 #!/usr/bin/env python3
 """
 Responsible for preprocessing such as eliminating words. Also saves the result into a file
+Use of NLTK stopwords from https://pythonspot.com/nltk-stop-words/
+
+NOTE: This downloads the list of stopwords to the user's computer.
 """
-import numpy as np
+import string
+import nltk
+from nltk.corpus import stopwords
+
+nltk.download('stopwords') # Download stopwords
 
 
-def eliminateStopWords(all_subwords: list, all_vectors: list, stopWordsLoc):
-    # Read all stopwords by splitting them with whitespaces
-#    stopwords = set(open(stopWordsLoc).read().split())
-    # used to remove tokens and some special characters that may appear in descriptions
-    remove_words = {"[CLS]", "[SEP]", ",", '"', "'", ";", ":", "!", "$", "^", "@"}
-
-#    stopwords.update(remove_words)  # Combine the two sets
+def eliminateStopWords(all_subwords: list, all_vectors: list):
+    bert_tokens = ["[CLS]", "[SEP]"]
+    stop_words = set(stopwords.words("english") + list(string.punctuation) + bert_tokens)
 
     for i in range(len(all_subwords)):
         each_subword_list = all_subwords[i]
@@ -20,7 +23,9 @@ def eliminateStopWords(all_subwords: list, all_vectors: list, stopWordsLoc):
         # remove vector data in the index in which the subwords element is a stop word
         # reverse loop to make sure there are no problems when deleting elements
         for j in range(len(each_subword_list) - 1, -1, -1):
-            if (each_subword_list[j] in remove_words) or (len(each_subword_list[j]) <= 1):
+            subword = each_subword_list[j]
+
+            if (subword in stop_words) or (len(subword) <= 1) or (subword.isdigit()):
                 each_subword_list.pop(j)
                 each_vector_list.pop(j)
 

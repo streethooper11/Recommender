@@ -63,13 +63,13 @@ def clusterToRankGen(input_actors, up_input_subwords, up_input_vectors):
     accuracy = numMatch / len(input_actors)
     print("Accuracy: ", accuracy)
 
-def wordEmbedInputData(model, tokenizer, roleDescriptionLoc, stopWordsLoc):
+def wordEmbedInputData(model, tokenizer, roleDescriptionLoc):
     # Get all embeddings for all input role descriptions, and remove stop words from all of them
     # embed words for testing with pre-trained BERT model
     input_actors, input_subwords, input_vectors, _ = \
         embedWords(roleDescriptionLoc, model, tokenizer)
     # Remove stop words from the embeddings and get it back
-    up_input_subwords, up_input_vectors = preprocess.eliminateStopWords(input_subwords, input_vectors, stopWordsLoc)
+    up_input_subwords, up_input_vectors = preprocess.eliminateStopWords(input_subwords, input_vectors)
     # input_vectors are tensors; convert to a regular list. It will be a 2D list.
     up_input_vectors = processList.convertTensors(input_actors, up_input_vectors)
 
@@ -82,7 +82,6 @@ if __name__ == "__main__":
     trainActorsLoc = 'Data/TrainData/trainActors.npy'
     trainVectorsLoc = 'Data/TrainData/trainVectors.npy'
     trainActorCountsLoc = 'Data/TrainData/trainActorCounts.json'
-    stopWordsLoc = 'Data/stopwords.txt'
     inputRoleDescriptionLoc = 'Data/TestData/InputDescription.csv'
 
     # Load pre-trained model (weights)
@@ -105,7 +104,7 @@ if __name__ == "__main__":
 
     # WORD EMBEDDING FOR INPUT DATA
     input_actors, up_input_subwords, up_input_vectors = \
-        wordEmbedInputData(model, tokenizer, inputRoleDescriptionLoc, stopWordsLoc)
+        wordEmbedInputData(model, tokenizer, inputRoleDescriptionLoc)
 
     numMatch = 0 # number of times the actor name provided as the output in the testing data was predicted
     for i in range(len(input_actors)):

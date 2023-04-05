@@ -11,7 +11,7 @@ from Logic import preprocess, processList
 from Logic.embeddedLearn import embedWords
 
 
-def wordEmbedTrainingData(model, tokenizer, trainDataLocs, stopWordsLoc):
+def wordEmbedTrainingData(model, tokenizer, trainDataLocs):
     roleDescriptionLoc = trainDataLocs[0]
     trainActorsLoc = trainDataLocs[1]
     trainVectorsLoc = trainDataLocs[2]
@@ -21,7 +21,7 @@ def wordEmbedTrainingData(model, tokenizer, trainDataLocs, stopWordsLoc):
     train_actors, train_subwords, train_vectors, actor_counts = \
         embedWords(roleDescriptionLoc, model, tokenizer)
     # Remove stop words from the embeddings and get it back
-    _, up_train_vectors = preprocess.eliminateStopWords(train_subwords, train_vectors, stopWordsLoc)
+    _, up_train_vectors = preprocess.eliminateStopWords(train_subwords, train_vectors)
     # train_vectors are tensors; convert to a regular list. It will be a 2D list.
     up_train_vectors = processList.convertTensors(train_actors, up_train_vectors)
 
@@ -51,7 +51,6 @@ if __name__ == "__main__":
     trainActorsLoc = 'Data/TrainData/trainActors.npy'
     trainVectorsLoc = 'Data/TrainData/trainVectors.npy'
     trainActorCountsLoc = 'Data/TrainData/trainActorCounts.json'
-    stopWordsLoc = 'Data/stopwords.txt'
 
     trainDataLocs = (roleDescriptionLoc, trainActorsLoc, trainVectorsLoc, trainActorCountsLoc)
-    wordEmbedTrainingData(model, tokenizer, trainDataLocs, stopWordsLoc)
+    wordEmbedTrainingData(model, tokenizer, trainDataLocs)

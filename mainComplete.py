@@ -17,7 +17,6 @@ movieRatingLoc = 'Data/TrainData/Movies.csv'
 trainActorsLoc = 'Data/TrainData/trainActors.npy'
 trainVectorsLoc = 'Data/TrainData/trainVectors.npy'
 trainActorCountsLoc = 'Data/TrainData/trainActorCounts.json'
-stopWordsLoc = 'Data/stopwords.txt'
 inputRoleDescriptionLoc = 'Data/TestData/InputDescription.csv'
 
 # SETUP
@@ -36,11 +35,11 @@ tokenizer = BertTokenizer.from_pretrained('bert-base-uncased')
 # PART 2: WORD EMBEDDING FOR TRAINING DATA
 trainDataLocs = (roleDescriptionLoc, trainActorsLoc, trainVectorsLoc, trainActorCountsLoc)
 unroll_train_actors, train_vec_numpy, actor_counts = \
-    wordEmbedTrainingData(model, tokenizer, trainDataLocs, stopWordsLoc)
+    wordEmbedTrainingData(model, tokenizer, trainDataLocs)
 
 # PART 3: WORD EMBEDDING FOR INPUT DATA
 input_actors, up_input_subwords, up_input_vectors = \
-    wordEmbedInputData(model, tokenizer, inputRoleDescriptionLoc, stopWordsLoc)
+    wordEmbedInputData(model, tokenizer, inputRoleDescriptionLoc)
 
 # PART 4-7: CLUSTERING TO RANKING GENERATION
 # Steps:
@@ -52,7 +51,7 @@ input_actors, up_input_subwords, up_input_vectors = \
 # 6. Loop Steps 1-5 for each role description separately, so that input data do not cluster against one another
 # WORD EMBEDDING FOR INPUT DATA
 input_actors, up_input_subwords, up_input_vectors = \
-    wordEmbedInputData(model, tokenizer, inputRoleDescriptionLoc, stopWordsLoc)
+    wordEmbedInputData(model, tokenizer, inputRoleDescriptionLoc)
 
 numMatch = 0  # number of times the actor name provided as the output in the testing data was predicted
 for i in range(len(input_actors)):
