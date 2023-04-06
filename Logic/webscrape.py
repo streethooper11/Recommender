@@ -8,7 +8,7 @@ def webscrapeActors(files: list, output: str):
         # The text file will be links of X Y Z actor and named after them, for example Jack Black.txt
         actor = file[22:-10]  # remove Data/TrainData/Actors/ and -movie.txt part
 
-        with open(output, mode='a', newline='', encoding='utf-8') as writeFile:
+        with open(output, mode="a", newline="", encoding="utf-8") as writeFile:
             # Find the URL of the Wikipedia page you want to scrape
             with open(file, "r") as f:
                 urls = f.readlines()

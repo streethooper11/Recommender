@@ -20,7 +20,7 @@ def webscrapeTrainData():
     outputPathMovies = "Data/TrainData/Movies.csv"
 
     webscrape.webscrapeActors(filesActors, outputPathActors)
-    webscrape.webscrapeMovies(filesMovies, outputPathMovies)
+#    webscrape.webscrapeMovies(filesMovies, outputPathMovies)
 
 if __name__ == "__main__":
     webscrapeTrainData()

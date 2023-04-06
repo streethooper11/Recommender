@@ -3,7 +3,6 @@
 Responsible for creating and processing of data structures and saving numpy arrays to files.
 """
 import numpy as np
-import pandas as pd
 
 def convertTensors(actors: list, all_vectors: list):
     # Change vectors to a pandas dataframe
