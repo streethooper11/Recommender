@@ -2,12 +2,15 @@
 """
 This is the executable file that goes over the whole process from web scraping to ranking generation
 This will run everything regardless of whether the training set was updated or not.
+
 If you wish to update the training set with new embeddings run part2_trainDataEmbed.py only
 If you wish to re-use the embedded training set run part3_inputDataEmbedToRank.py only
 """
 
-from transformers import BertTokenizer, BertModel
 from Logic import actorInfoGeneration, extractTerms, generateRanking
+from Logic.setupModel import setupBert
+from part1_webscrapeInputData import webscrapeInputData
+from part1_webscrapeTrainData import webscrapeTrainData
 from part2_trainDataEmbed import wordEmbedTrainingData
 from part3_inputDataEmbedToRank import wordEmbedInputData, scanCluster
 
@@ -18,18 +21,12 @@ trainVectorsLoc = 'Data/TrainData/trainVectors.npy'
 trainActorCountsLoc = 'Data/TrainData/trainActorCounts.json'
 inputRoleDescriptionLoc = 'Data/TestData/InputDescription.csv'
 
-# SETUP
-# Load pre-trained model (weights)
-model = BertModel.from_pretrained('bert-base-uncased',
-                                  output_hidden_states=True,  # Whether the model returns all hidden-states.
-                                  )
+# PART 1: DATA COLLECTION
+webscrapeTrainData()
+webscrapeInputData()
 
-# Put the model in "evaluation" mode, meaning feed-forward operation.
-model.eval()
-
-# Load pre-trained model tokenizer with a given bert version
-tokenizer = BertTokenizer.from_pretrained('bert-base-uncased')
-
+# SETUP pre-trained BERT model with tokenizer
+model, tokenizer = setupBert()
 
 # PART 2: WORD EMBEDDING FOR TRAINING DATA
 trainDataLocs = (roleDescriptionLoc, trainActorsLoc, trainVectorsLoc, trainActorCountsLoc)

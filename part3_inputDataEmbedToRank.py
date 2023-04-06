@@ -7,10 +7,10 @@ This can be used separately if you wish to re-use your training set's embeddings
 
 import json
 import numpy as np
-from transformers import BertTokenizer, BertModel
-
 from Logic import preprocess, processList, clustering, actorInfoGeneration, extractTerms, generateRanking
 from Logic.embeddedLearn import embedWords
+from Logic.setupModel import setupBert
+
 
 def kmeansCluster(train_vec_numpy, input_vector):
     cluster_vectors = np.concatenate((train_vec_numpy, np.array(input_vector)))
@@ -96,16 +96,8 @@ if __name__ == "__main__":
     trainActorCountsLoc = 'Data/TrainData/trainActorCounts.json'
     inputRoleDescriptionLoc = 'Data/TestData/InputDescription.csv'
 
-    # Load pre-trained model (weights)
-    model = BertModel.from_pretrained('bert-base-uncased',
-                                      output_hidden_states=True,  # Whether the model returns all hidden-states.
-                                      )
-
-    # Put the model in "evaluation" mode, meaning feed-forward operation.
-    model.eval()
-
-    # Load pre-trained model tokenizer with a given bert version
-    tokenizer = BertTokenizer.from_pretrained('bert-base-uncased')
+    # SETUP pre-trained BERT model with tokenizer
+    model, tokenizer = setupBert()
 
     # Load the trained data saved; they are already unrolled
     unroll_train_actors = np.load(trainActorsLoc)

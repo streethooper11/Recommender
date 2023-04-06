@@ -4,9 +4,9 @@ This is the executable file that only embeds the training set and saves into a f
 This can be used separately if you wish to update the embeddings for the training set.
 """
 import json
-from transformers import BertTokenizer, BertModel
 from Logic import preprocess, processList
 from Logic.embeddedLearn import embedWords
+from Logic.setupModel import setupBert
 
 
 def wordEmbedTrainingData(model, tokenizer, trainDataLocs):
@@ -35,15 +35,8 @@ def wordEmbedTrainingData(model, tokenizer, trainDataLocs):
     return unroll_train_actors, train_vec_numpy, actor_counts
 
 if __name__ == "__main__":
-    # SETUP
-    # Load pre-trained model (weights)
-    model = BertModel.from_pretrained('bert-base-uncased',
-                                      output_hidden_states=True,  # Whether the model returns all hidden-states.
-                                      )
-    # Put the model in "evaluation" mode, meaning feed-forward operation.
-    model.eval()
-    # Load pre-trained model tokenizer with a given bert version
-    tokenizer = BertTokenizer.from_pretrained('bert-base-uncased')
+    # SETUP pre-trained BERT model with tokenizer
+    model, tokenizer = setupBert()
 
     roleDescriptionLoc = 'Data/TrainData/Roles.csv'
     trainActorsLoc = 'Data/TrainData/trainActors.npy'

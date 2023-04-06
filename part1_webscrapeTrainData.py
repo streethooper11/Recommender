@@ -1,20 +1,24 @@
 #!/usr/bin/env python3
 """
 This is the executable file that webscrapes actor and movie information for training data
-Source for listing a file in a folder:
+Source for listing file in a folder:
 https://www.geeksforgeeks.org/python-list-files-in-a-directory/
 """
 import os
 from Logic import webscrape
 
-actorsPath = "Data/TrainData/Actors/" # All training actor files are stored here
-moviesPath = "Data/TrainData/Movies/" # All training movie files are stored here
+def webscrapeTrainData():
+    actorsPath = "Data/TrainData/Actors/"  # All training actor files are stored here
+    moviesPath = "Data/TrainData/Movies/"  # All training movie files are stored here
 
-filesActorsTemp = os.listdir(actorsPath)
-filesActors = [actorsPath + actorName for actorName in filesActorsTemp]
+    filesActorsTemp = os.listdir(actorsPath)
+    filesActors = [actorsPath + actorName for actorName in filesActorsTemp]
 
-filesMoviesTemp = os.listdir(moviesPath)
-filesMovies = [moviesPath + movieName for movieName in filesMoviesTemp]
+    filesMoviesTemp = os.listdir(moviesPath)
+    filesMovies = [moviesPath + movieName for movieName in filesMoviesTemp]
 
-webscrape.webscrapeActors(filesActors)
-#    webscrape.webscrapeMovies(filesMovies)
+    webscrape.webscrapeActors(filesActors)
+    #    webscrape.webscrapeMovies(filesMovies)
+
+if __name__ == "__main__":
+    webscrapeTrainData()
