@@ -7,7 +7,6 @@ If you wish to re-use the embedded training set run part3_inputDataEmbedToRank.p
 """
 
 from transformers import BertTokenizer, BertModel
-
 from Logic import actorInfoGeneration, extractTerms, generateRanking
 from part2_trainDataEmbed import wordEmbedTrainingData
 from part3_inputDataEmbedToRank import wordEmbedInputData, scanCluster

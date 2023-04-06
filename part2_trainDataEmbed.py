@@ -4,9 +4,7 @@ This is the executable file that only embeds the training set and saves into a f
 This can be used separately if you wish to update the embeddings for the training set.
 """
 import json
-
 from transformers import BertTokenizer, BertModel
-
 from Logic import preprocess, processList
 from Logic.embeddedLearn import embedWords
 
