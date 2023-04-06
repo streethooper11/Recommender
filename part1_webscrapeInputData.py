@@ -13,7 +13,8 @@ def webscrapeInputData():
     filesActorsTemp = os.listdir(actorsPath)
     filesActors = [actorsPath + actorName for actorName in filesActorsTemp]
 
-    webscrape.webscrapeActors(filesActors)
+    outputPath = "Data/TestData/InputDescription.csv"
+    webscrape.webscrapeActors(filesActors, outputPath)
 
 if __name__ == "__main__":
     webscrapeInputData()

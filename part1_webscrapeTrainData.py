@@ -13,12 +13,14 @@ def webscrapeTrainData():
 
     filesActorsTemp = os.listdir(actorsPath)
     filesActors = [actorsPath + actorName for actorName in filesActorsTemp]
+    outputPathActors = "Data/TrainData/Roles.csv"
 
     filesMoviesTemp = os.listdir(moviesPath)
     filesMovies = [moviesPath + movieName for movieName in filesMoviesTemp]
+    outputPathMovies = "Data/TrainData/Movies.csv"
 
-    webscrape.webscrapeActors(filesActors)
-    #    webscrape.webscrapeMovies(filesMovies)
+    webscrape.webscrapeActors(filesActors, outputPathActors)
+    webscrape.webscrapeMovies(filesMovies, outputPathMovies)
 
 if __name__ == "__main__":
     webscrapeTrainData()
