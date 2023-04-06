@@ -12,12 +12,23 @@ from transformers import BertTokenizer, BertModel
 from Logic import preprocess, processList, clustering, actorInfoGeneration, extractTerms, generateRanking
 from Logic.embeddedLearn import embedWords
 
+def kmeansCluster(train_vec_numpy, input_vector):
+    cluster_vectors = np.concatenate((train_vec_numpy, np.array(input_vector)))
+    cluster_data = clustering.kmeansClustering(cluster_vectors)
+
+    return cluster_data
 
 def dbscanCluster(train_vec_numpy, input_vector):
     cluster_vectors = np.concatenate((train_vec_numpy, np.array(input_vector)))
     cluster_data = clustering.dbscanClustering(cluster_vectors)
 
     return cluster_data
+
+def scanCluster(clusteringType: str, train_vec_numpy, input_vector):
+    if clusteringType.lower() == "dbscan":
+        return dbscanCluster(train_vec_numpy, input_vector)
+    else:
+        return kmeansCluster(train_vec_numpy, input_vector)
 
 def clusterToRankGen(input_actors, up_input_subwords, up_input_vectors):
     # CLUSTERING TO RANKING GENERATION
@@ -40,7 +51,8 @@ def clusterToRankGen(input_actors, up_input_subwords, up_input_vectors):
     for i in range(len(input_actors)):
         actor_name = input_actors[i]
 
-        cluster_data = dbscanCluster(train_vec_numpy, up_input_vectors[i])
+        cluster_data = scanCluster("dbscan", train_vec_numpy, up_input_vectors[i])
+        # cluster_data = scanCluster("kmeans", train_vec_numpy, up_input_vectors[i])
 
         result_clusters, result_ratings, result_ratings_appearance = \
             actorInfoGeneration.createDictionary_ClustersActorsRatings(cluster_data, unroll_train_actors, movieRatingLoc)

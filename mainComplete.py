@@ -10,7 +10,7 @@ from transformers import BertTokenizer, BertModel
 
 from Logic import actorInfoGeneration, extractTerms, generateRanking
 from part2_trainDataEmbed import wordEmbedTrainingData
-from part3_inputDataEmbedToRank import wordEmbedInputData, dbscanCluster
+from part3_inputDataEmbedToRank import wordEmbedInputData, scanCluster
 
 roleDescriptionLoc = 'Data/TrainData/Roles.csv'
 movieRatingLoc = 'Data/TrainData/Movies.csv'
@@ -56,7 +56,8 @@ input_actors, up_input_subwords, up_input_vectors = \
 numMatch = 0  # number of times the actor name provided as the output in the testing data was predicted
 for i in range(len(input_actors)):
     # CLUSTERING
-    cluster_data = dbscanCluster(train_vec_numpy, up_input_vectors[i])
+    cluster_data = scanCluster("dbscan", train_vec_numpy, up_input_vectors[i])
+    # cluster_data = scanCluster("kmeans", train_vec_numpy, up_input_vectors[i])
 
     # ACTOR INFORMATION GENERATION
     # Done in this step now that the clustering data has been obtained

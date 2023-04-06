@@ -7,7 +7,7 @@ File responsible for clustering
 # https://techblog.assignar.com/how-to-use-bert-sentence-embedding-for-clustering-text/
 
 import numpy as np
-from sklearn.cluster import DBSCAN
+from sklearn.cluster import DBSCAN, KMeans
 
 
 def dbscanClustering(vectors, eps=0.5, min_samples=2, metric='euclidean'):
@@ -22,9 +22,22 @@ def dbscanClustering(vectors, eps=0.5, min_samples=2, metric='euclidean'):
     """
 
     # Perform DBSCAN on the numpy array and get labels
-    db = DBSCAN(eps=eps, min_samples=min_samples, metric=metric, algorithm='auto').fit(vectors.tolist())
+    db = DBSCAN(eps=eps, min_samples=min_samples, metric=metric, algorithm='auto').fit(vectors)
 
-    # TODO: Insert db.labels_ to DBSCAN_dataset
-    # DBSCAN_dataset = x.copy()
+    return db.labels_
+
+def kmeansClustering(vectors, n_clusters=10):
+    """
+    Clusters the BERT vectors using K-Means Clustering
+
+    :param vectors: List of vectors in numpy array
+    :param n_clusters: Number of clusters
+    :return: Result of K-Means clustering
+    """
+
+    # Perform K-Means Clustering on the numpy array and get labels
+    db = KMeans(n_clusters=n_clusters, n_init="auto").fit(vectors)
+
+    print(db.labels_)
 
     return db.labels_
