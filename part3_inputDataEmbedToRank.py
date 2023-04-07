@@ -48,11 +48,12 @@ def clusterToRankGen(input_actors, up_input_subwords, up_input_vectors):
         actor_counts = json.load(f)
 
     numMatch = 0 # number of times the actor name provided as the output in the testing data was predicted
+
     for i in range(len(input_actors)):
         actor_name = input_actors[i]
 
-        cluster_data = scanCluster("dbscan", train_vec_numpy, up_input_vectors[i])
-        # cluster_data = scanCluster("kmeans", train_vec_numpy, up_input_vectors[i])
+        # cluster_data = scanCluster("dbscan", train_vec_numpy, up_input_vectors[i])
+        cluster_data = scanCluster("kmeans", train_vec_numpy, up_input_vectors[i])
 
         result_clusters, result_ratings, result_ratings_appearance = \
             actorInfoGeneration.createDictionary_ClustersActorsRatings(cluster_data, unroll_train_actors, movieRatingLoc)
@@ -60,8 +61,6 @@ def clusterToRankGen(input_actors, up_input_subwords, up_input_vectors):
         input_DF = extractTerms.combine_input_cluster(up_input_subwords[i], cluster_data)
         query_result = extractTerms.extractTerms(k=5, df=input_DF)
         query_clusters = [x[1] for x in query_result]  # list comprehension to make a list of clusters only
-
-        print(query_clusters)  # test
 
         top_actor_list = generateRanking.generateRanking \
             (query_clusters, result_clusters, actor_counts, result_ratings, result_ratings_appearance, 5)

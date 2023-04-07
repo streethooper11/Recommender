@@ -15,7 +15,6 @@ def webscrapeActors(files: list, output: str):
                 urls = f.readlines()
 
                 for url in urls:
-
                     url = url.strip()  # remove leading/trailing white space
 
                     # Make a request to the URL
@@ -71,7 +70,7 @@ def webscrapeMovies(files: list, output: str):
                         "User Rating")  # get the index of the start of the rating
                     lines = page_text[user_rating_index:].splitlines()  # split the text into lines
                     line_11 = lines[
-                        10].strip()  # select the 11th line after "User Rating" and remove leading/trailing white space
+                        10].strip()  # select the 11th line after "User Rating" and remove leading/trailing white space\
 
                     # write the extracted line to the second column of the CSV file
                     writer = csv.writer(writeFile)
