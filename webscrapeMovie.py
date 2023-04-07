@@ -4,7 +4,7 @@ import time
 from bs4 import BeautifulSoup
 
 #Put files of x y z actors that we have data for here, will aggregate it all into Movies.csv
-files = ["Jack Black-movie.txt", "Morfydd Clark-movie.txt", "Jay Baruchel-movie.txt", "Seth MacFarlane-movie.txt"]
+files = ["Jack Black-movie.txt", "Morfydd Clark-movie.txt", "John Dimigallio-movie.txt"]
 
 for file in files:
     #The text file will be links of X Y Z actor and named after them, for example Jack Black.txt
