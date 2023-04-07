@@ -30,4 +30,6 @@ def eliminateStopWords(all_subwords: list, all_vectors: list):
                 each_subword_list.pop(j)
                 each_vector_list.pop(j)
 
+    print(all_subwords)
+
     return all_subwords, all_vectors

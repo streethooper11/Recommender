@@ -6,19 +6,19 @@ File responsible for creating actor ranking for the recommendation system.
 def calculateSimilarity(query_clusters, clusters):
     result = 0
     for query_cluster in query_clusters:
-        if clusters[query_cluster] is not None:
+        if (query_cluster >= 1) and (query_cluster in clusters):
             result += clusters[query_cluster]
 
     return result
 
 def calculatePopularity(role_appearances, actor):
-    if role_appearances[actor] is None:
+    if actor not in role_appearances:
         return 0
 
     return role_appearances[actor]
 
 def calculateRating(ratings, rating_appearances, actor):
-    if ratings[actor] is None:
+    if actor not in ratings:
         return 0
 
     return ratings[actor] / (rating_appearances[actor])

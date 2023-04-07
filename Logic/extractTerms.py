@@ -3,7 +3,6 @@
 #https://www.freecodecamp.org/news/sort-dictionary-by-value-in-python/
 
 import pandas as pd
-import numpy as np
 from sklearn.feature_extraction.text import TfidfVectorizer
 
 def combine_input_cluster(input_subwords, cluster_data):
