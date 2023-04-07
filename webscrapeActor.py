@@ -4,7 +4,7 @@ import csv
 
 
 #Put files of x y z actors that we have data for here, will aggregate it all into Movies.csv
-files = ["Jack Black-actor.txt","Morfydd Clark-actor.txt", "Jay Baruchel-actor.txt", "Seth MacFarlane-actor.txt"]
+files = ["Jack Black-actor.txt","Morfydd Clark-actor.txt", "Jay Baruchel-actor.txt", "Seth MacFarlane-actor.txt", "Lawrence-actor.txt", "Keanu Reeves-actor.txt", "John Dimigallio-actor.txt"]
 
 for file in files:
     #The text file will be links of X Y Z actor and named after them, for example Jack Black.txt
