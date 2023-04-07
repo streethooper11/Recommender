@@ -50,19 +50,20 @@ def extractTerms(k, df):
     tfidf_scores = {}
     for col in response.nonzero()[1]:
         tfidf_scores[feature_names[col]] = response[0, col]
-    
+
     sorted_by_scores = sorted(tfidf_scores.items(), key=lambda x:x[1], reverse=True)
     for i in range(k):
-        term = sorted_by_scores[i]
-        og_word = ""
-        for word in only_words:
-            if "##" in word and term[0] in word:
-                og_word = word
-                break
-            elif term[0] == word:
-                og_word = word
-                break
-        row = df.loc[(df["subwords"] == og_word)]
-        terms.append((term[0], row.iloc[0]["cluster"]))
+        if i < len(sorted_by_scores):
+            term = sorted_by_scores[i]
+            og_word = ""
+            for word in only_words:
+                if "##" in word and term[0] in word:
+                    og_word = word
+                    break
+                elif term[0] == word:
+                    og_word = word
+                    break
+            row = df.loc[(df["subwords"] == og_word)]
+            terms.append((term[0], row.iloc[0]["cluster"]))
 
     return terms

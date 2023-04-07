@@ -24,8 +24,6 @@ def dbscanClustering(vectors, eps=20, min_samples=3, metric='euclidean'):
     # Perform DBSCAN on the numpy array and get labels
     db = DBSCAN(eps=eps, min_samples=min_samples, metric=metric, algorithm='auto').fit(vectors)
 
-    print(db.labels_)
-
     return db.labels_
 
 def kmeansClustering(vectors, n_clusters=10):

@@ -1,3 +1,4 @@
+import time
 import requests
 from bs4 import BeautifulSoup
 import csv
@@ -34,7 +35,6 @@ def webscrapeActors(files: list, output: str):
                     for header in soup.find_all('h2'):
                         header_text = header.text.strip().replace("[edit]", "")
                         if header_text.lower() in title:
-                            print(header_text)
                             next_paragraph = header.find_next('p')  # find the next paragraph after the header
                             if next_paragraph:
                                 paragraphs.append(next_paragraph.text.strip())
@@ -54,15 +54,18 @@ def webscrapeMovies(files: list, output: str):
                 urls = f.readlines()
 
                 for url in urls:
-                    url = url.strip()  # remove leading/trailing white space
+                    time.sleep(1)  # add a delay of 1 second
 
-                    response = requests.get(url)
+                    headers = {
+                        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36'
+                    }
+                    response = requests.get(url, headers=headers)
                     soup = BeautifulSoup(response.text, "html.parser")
 
                     page_text = soup.text
                     page_text_lines = page_text.splitlines()
 
-                    title = page_text_lines[93].strip()
+                    title = page_text_lines[12].strip()
 
                     user_rating_index = page_text.find("User Rating") + len(
                         "User Rating")  # get the index of the start of the rating
