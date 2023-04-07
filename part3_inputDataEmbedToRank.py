@@ -52,8 +52,8 @@ def clusterToRankGen(input_actors, up_input_subwords, up_input_vectors):
     for i in range(len(input_actors)):
         actor_name = input_actors[i]
 
-        # cluster_data = scanCluster("dbscan", train_vec_numpy, up_input_vectors[i])
-        cluster_data = scanCluster("kmeans", train_vec_numpy, up_input_vectors[i])
+        cluster_data = scanCluster("dbscan", train_vec_numpy, up_input_vectors[i])
+        # cluster_data = scanCluster("kmeans", train_vec_numpy, up_input_vectors[i])
 
         result_clusters, result_ratings, result_ratings_appearance = \
             actorInfoGeneration.createDictionary_ClustersActorsRatings(cluster_data, unroll_train_actors, movieRatingLoc)
@@ -112,7 +112,8 @@ if __name__ == "__main__":
     numMatch = 0 # number of times the actor name provided as the output in the testing data was predicted
     for i in range(len(input_actors)):
         # CLUSTERING
-        cluster_data = dbscanCluster(train_vec_numpy, up_input_vectors[i])
+        # cluster_data = scanCluster("dbscan", train_vec_numpy, up_input_vectors[i])
+        cluster_data = scanCluster("kmeans", train_vec_numpy, up_input_vectors[i])
 
         # ACTOR INFORMATION GENERATION
         # Done in this step now that the clustering data has been obtained
