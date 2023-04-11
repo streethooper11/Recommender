@@ -3,13 +3,14 @@
 File responsible for creating actor ranking for the recommendation system.
 """
 
-def calculateSimilarity(query_clusters, clusters):
+def calculateSimilarity(query_clusters, clusters, role_appearances, actor):
     result = 0
     for query_cluster in query_clusters:
-        if (query_cluster >= 1) and (query_cluster in clusters):
-            result += clusters[query_cluster]
+        if (query_cluster >= 1) and (query_cluster in clusters[actor]):
+            result += clusters[actor][query_cluster]
 
-    return result
+    # The result is divided by the number of role appearances to normalize it
+    return result / float(role_appearances[actor])
 
 def calculatePopularity(role_appearances, actor):
     if actor not in role_appearances:
@@ -25,11 +26,14 @@ def calculateRating(ratings, rating_appearances, actor):
 
 def generateRanking(query_clusters, clusters, role_appearances, ratings, rating_appearances, topNum):
     result = []
+    w1 = 1
+    w2 = 0.1
+    w3 = 0.2
 
     for actor in clusters:
-        similarityScore = calculateSimilarity(query_clusters, clusters[actor])
-        popularityScore = calculatePopularity(role_appearances, actor)
-        ratingScore = calculateRating(ratings, rating_appearances, actor)
+        similarityScore = calculateSimilarity(query_clusters, clusters, role_appearances, actor) ** w1
+        popularityScore = calculatePopularity(role_appearances, actor) ** w2
+        ratingScore = calculateRating(ratings, rating_appearances, actor) ** w3
         actorScore = similarityScore * popularityScore * ratingScore
         result.append((actor, actorScore))
 
