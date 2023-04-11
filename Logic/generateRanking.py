@@ -26,9 +26,9 @@ def calculateRating(ratings, rating_appearances, actor):
 
 def generateRanking(query_clusters, clusters, role_appearances, ratings, rating_appearances, topNum):
     result = []
-    w1 = 1
-    w2 = 0.1
-    w3 = 0.2
+    w1 = 0.3
+    w2 = 0.05
+    w3 = 0.1
 
     for actor in clusters:
         similarityScore = calculateSimilarity(query_clusters, clusters, role_appearances, actor) ** w1
