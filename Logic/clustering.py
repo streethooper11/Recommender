@@ -10,7 +10,7 @@ import numpy as np
 from sklearn.cluster import DBSCAN, KMeans
 
 
-def dbscanClustering(vectors, eps=20, min_samples=3, metric='euclidean'):
+def dbscanClustering(vectors, eps, min_samples, metric='euclidean'):
     """
     Clusters the BERT vectors using DBSCAN
 
@@ -26,7 +26,7 @@ def dbscanClustering(vectors, eps=20, min_samples=3, metric='euclidean'):
 
     return db.labels_
 
-def kmeansClustering(vectors, n_clusters=10):
+def kmeansClustering(vectors, n_clusters):
     """
     Clusters the BERT vectors using K-Means Clustering
 

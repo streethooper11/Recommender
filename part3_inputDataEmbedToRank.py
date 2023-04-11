@@ -12,23 +12,23 @@ from Logic.embeddedLearn import embedWords
 from Logic.setupModel import setupBert
 
 
-def kmeansCluster(train_vec_numpy, input_vector):
+def kmeansCluster(train_vec_numpy, input_vector, n_clusters):
     cluster_vectors = np.concatenate((train_vec_numpy, np.array(input_vector)))
-    cluster_data = clustering.kmeansClustering(cluster_vectors)
+    cluster_data = clustering.kmeansClustering(cluster_vectors, n_clusters)
 
     return cluster_data
 
-def dbscanCluster(train_vec_numpy, input_vector):
+def dbscanCluster(train_vec_numpy, input_vector, eps, min_samples):
     cluster_vectors = np.concatenate((train_vec_numpy, np.array(input_vector)))
-    cluster_data = clustering.dbscanClustering(cluster_vectors)
+    cluster_data = clustering.dbscanClustering(cluster_vectors, eps, min_samples)
 
     return cluster_data
 
 def scanCluster(clusteringType: str, train_vec_numpy, input_vector):
     if clusteringType.lower() == "dbscan":
-        return dbscanCluster(train_vec_numpy, input_vector)
+        return dbscanCluster(train_vec_numpy, input_vector, eps=25, min_samples=4)
     else:
-        return kmeansCluster(train_vec_numpy, input_vector)
+        return kmeansCluster(train_vec_numpy, input_vector, n_clusters=15)
 
 def clusterToRankGen(input_actors, up_input_subwords, up_input_vectors):
     # CLUSTERING TO RANKING GENERATION
@@ -47,32 +47,43 @@ def clusterToRankGen(input_actors, up_input_subwords, up_input_vectors):
     with open(trainActorCountsLoc, 'r') as f:
         appearances = json.load(f)
 
-    numMatch = 0 # number of times the actor name provided as the output in the testing data was predicted
+    total_counts = 0
+    for actor in appearances:
+        total_counts += appearances[actor]
 
+    numMatch = 0  # number of times the actor name provided as the output in the testing data was predicted
     for i in range(len(input_actors)):
-        actor_name = input_actors[i]
-
+        # CLUSTERING
         cluster_data = scanCluster("dbscan", train_vec_numpy, up_input_vectors[i])
         #cluster_data = scanCluster("kmeans", train_vec_numpy, up_input_vectors[i])
 
+        # ACTOR INFORMATION GENERATION
+        # Done in this step now that the clustering data has been obtained
         result_clusters, result_ratings, result_ratings_appearance = \
-            actorInfoGeneration.createDictionary_ClustersActorsRatings(cluster_data, unroll_train_actors, movieRatingLoc)
+            actorInfoGeneration.createDictionary_ClustersActorsRatings(cluster_data, unroll_train_actors,
+                                                                       movieRatingLoc)
 
+        # QUERY EXTRACTION
         input_DF = extractTerms.combine_input_cluster(up_input_subwords[i], cluster_data)
-        query_result = extractTerms.extractTerms(k=5, df=input_DF)
+        query_result = extractTerms.extractTerms(k=20, df=input_DF)
         query_clusters = [x[1] for x in query_result]  # list comprehension to make a list of clusters only
 
-        top_actor_list = generateRanking.generateRanking \
-            (query_clusters, result_clusters, appearances, result_ratings, result_ratings_appearance, 5)
+        # RANKING GENERATION WITHOUT NORMALIZATION
+        #        top_actor_list = generateRanking.generateRanking \
+        #            (query_clusters, result_clusters, actor_counts, result_ratings, result_ratings_appearance, 5)
 
+        # RANKING GENERATION WITH NORMALIZATION
+        top_actor_list = generateRanking.generateRankingWithRatio \
+            (query_clusters, result_clusters, appearances, total_counts, result_ratings, result_ratings_appearance,
+             5)
+
+        # CHECK IF THE ACTUAL ACTOR WAS IN THE RECOMMENDATION
         print("Recommended actors: ", top_actor_list)
-        if actor_name in top_actor_list:
+        if input_actors[i] in top_actor_list:
             numMatch += 1
             print("Name found!")
 
-    # Get the accuracy
-    accuracy = numMatch / len(input_actors)
-    print("Accuracy: ", accuracy)
+    return numMatch
 
 def wordEmbedInputData(model, tokenizer, roleDescriptionLoc):
     # Get all embeddings for all input role descriptions, and remove stop words from all of them
@@ -96,52 +107,14 @@ if __name__ == "__main__":
     # SETUP pre-trained BERT model with tokenizer
     model, tokenizer = setupBert()
 
-    # Load the trained data saved; they are already unrolled
-    unroll_train_actors = np.load(trainActorsLoc)
-    train_vec_numpy = np.load(trainVectorsLoc)
-    # Open saved actor counts as dictionary
-    with open(trainActorCountsLoc, 'r') as f:
-        appearances = json.load(f)
-
-    total_counts = 0
-    for actor in appearances:
-        total_counts += appearances[actor]
-
     # WORD EMBEDDING FOR INPUT DATA
     input_actors, up_input_subwords, up_input_vectors = \
         wordEmbedInputData(model, tokenizer, inputRoleDescriptionLoc)
 
-    numMatch = 0 # number of times the actor name provided as the output in the testing data was predicted
-    for i in range(len(input_actors)):
-        # CLUSTERING
-        # cluster_data = scanCluster("dbscan", train_vec_numpy, up_input_vectors[i])
-        cluster_data = scanCluster("kmeans", train_vec_numpy, up_input_vectors[i])
+    # CLUSTER INPUT DATA AND GENERATE RANKS
+    # Return the total number of correct predictions
+    numMatch = clusterToRankGen(input_actors, up_input_subwords, up_input_vectors)
 
-        # ACTOR INFORMATION GENERATION
-        # Done in this step now that the clustering data has been obtained
-        result_clusters, result_ratings, result_ratings_appearance = \
-            actorInfoGeneration.createDictionary_ClustersActorsRatings(cluster_data, unroll_train_actors, movieRatingLoc)
-
-        # QUERY EXTRACTION
-        input_DF = extractTerms.combine_input_cluster(up_input_subwords[i], cluster_data)
-        query_result = extractTerms.extractTerms(k=5, df=input_DF)
-        query_clusters = [x[1] for x in query_result]  # list comprehension to make a list of clusters only
-
-        # RANKING GENERATION WITHOUT NORMALIZATION
-#        top_actor_list = generateRanking.generateRanking \
-#            (query_clusters, result_clusters, actor_counts, result_ratings, result_ratings_appearance, 5)
-
-        # RANKING GENERATION WITH NORMALIZATION
-        top_actor_list = generateRanking.generateRankingWithRatio \
-            (query_clusters, result_clusters, appearances, total_counts, result_ratings, result_ratings_appearance, 5)
-
-        # CHECK IF THE ACTUAL ACTOR WAS IN THE RECOMMENDATION
-        print("Recommended actors: ", top_actor_list)
-        actor_name = input_actors[i]
-        if actor_name in top_actor_list:
-            numMatch += 1
-            print("Name found!")
-
-    # PRINT THE ACCURACY
+    # Get the accuracy
     accuracy = numMatch / len(input_actors)
     print("Accuracy: ", accuracy)
