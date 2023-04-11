@@ -30,7 +30,7 @@ model, tokenizer = setupBert()
 
 # PART 2: WORD EMBEDDING FOR TRAINING DATA
 trainDataLocs = (roleDescriptionLoc, trainActorsLoc, trainVectorsLoc, trainActorCountsLoc)
-unroll_train_actors, train_vec_numpy = \
+unroll_train_actors, train_vec_numpy, appearances = \
     wordEmbedTrainingData(model, tokenizer, trainDataLocs)
 
 # PART 3: WORD EMBEDDING FOR INPUT DATA
@@ -67,7 +67,7 @@ for i in range(len(input_actors)):
 
     # RANKING GENERATION
     top_actor_list = generateRanking.generateRanking \
-        (query_clusters, result_clusters, actor_counts, result_ratings, result_ratings_appearance, 5)
+        (query_clusters, result_clusters, appearances, result_ratings, result_ratings_appearance, 5)
 
     # CHECK IF THE ACTUAL ACTOR WAS IN THE RECOMMENDATION
     print("Recommended actors: ", top_actor_list)

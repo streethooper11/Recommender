@@ -45,7 +45,7 @@ def clusterToRankGen(input_actors, up_input_subwords, up_input_vectors):
     train_vec_numpy = np.load(trainVectorsLoc)
     # Open saved actor counts as dictionary
     with open(trainActorCountsLoc, 'r') as f:
-        actor_counts = json.load(f)
+        appearances = json.load(f)
 
     numMatch = 0 # number of times the actor name provided as the output in the testing data was predicted
 
@@ -63,7 +63,7 @@ def clusterToRankGen(input_actors, up_input_subwords, up_input_vectors):
         query_clusters = [x[1] for x in query_result]  # list comprehension to make a list of clusters only
 
         top_actor_list = generateRanking.generateRanking \
-            (query_clusters, result_clusters, actor_counts, result_ratings, result_ratings_appearance, 5)
+            (query_clusters, result_clusters, appearances, result_ratings, result_ratings_appearance, 5)
 
         print("Recommended actors: ", top_actor_list)
         if actor_name in top_actor_list:
@@ -87,11 +87,11 @@ def wordEmbedInputData(model, tokenizer, roleDescriptionLoc):
     return input_actors, input_subwords, up_input_vectors
 
 if __name__ == "__main__":
-    movieRatingLoc = 'Data/TrainData/Movies.csv'
+    movieRatingLoc = 'Data/TrainData/MoviesManual.csv'
     trainActorsLoc = 'Data/TrainData/trainActors.npy'
     trainVectorsLoc = 'Data/TrainData/trainVectors.npy'
     trainActorCountsLoc = 'Data/TrainData/trainActorCounts.json'
-    inputRoleDescriptionLoc = 'Data/TestData/InputDescription.csv'
+    inputRoleDescriptionLoc = 'Data/TestData/InputDescriptionManual.csv'
 
     # SETUP pre-trained BERT model with tokenizer
     model, tokenizer = setupBert()
@@ -101,7 +101,11 @@ if __name__ == "__main__":
     train_vec_numpy = np.load(trainVectorsLoc)
     # Open saved actor counts as dictionary
     with open(trainActorCountsLoc, 'r') as f:
-        actor_counts = json.load(f)
+        appearances = json.load(f)
+
+    total_counts = 0
+    for actor in appearances:
+        total_counts += appearances[actor]
 
     # WORD EMBEDDING FOR INPUT DATA
     input_actors, up_input_subwords, up_input_vectors = \
@@ -123,9 +127,13 @@ if __name__ == "__main__":
         query_result = extractTerms.extractTerms(k=5, df=input_DF)
         query_clusters = [x[1] for x in query_result]  # list comprehension to make a list of clusters only
 
-        # RANKING GENERATION
-        top_actor_list = generateRanking.generateRanking \
-            (query_clusters, result_clusters, actor_counts, result_ratings, result_ratings_appearance, 5)
+        # RANKING GENERATION WITHOUT NORMALIZATION
+#        top_actor_list = generateRanking.generateRanking \
+#            (query_clusters, result_clusters, actor_counts, result_ratings, result_ratings_appearance, 5)
+
+        # RANKING GENERATION WITH NORMALIZATION
+        top_actor_list = generateRanking.generateRankingWithRatio \
+            (query_clusters, result_clusters, appearances, total_counts, result_ratings, result_ratings_appearance, 5)
 
         # CHECK IF THE ACTUAL ACTOR WAS IN THE RECOMMENDATION
         print("Recommended actors: ", top_actor_list)

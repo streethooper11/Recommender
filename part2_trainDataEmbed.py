@@ -16,7 +16,7 @@ def wordEmbedTrainingData(model, tokenizer, trainDataLocs):
     trainActorCountsLoc = trainDataLocs[3]
 
     # embed words for training with pre-trained BERT model and count the appearances of the actor in role descriptions
-    train_actors, train_subwords, train_vectors, actor_counts = \
+    train_actors, train_subwords, train_vectors, appearances = \
         embedWords(roleDescriptionLoc, model, tokenizer)
     # train_vectors are tensors; convert to a regular list. It will be a 2D list.
     up_train_vectors = processList.convertTensors(train_actors, train_vectors)
@@ -28,15 +28,15 @@ def wordEmbedTrainingData(model, tokenizer, trainDataLocs):
 
     # Save actor counts dictionary as a json file
     with open(trainActorCountsLoc, "w") as f:
-        json.dump(actor_counts, f)
+        json.dump(appearances, f)
 
-    return unroll_train_actors, train_vec_numpy, actor_counts
+    return unroll_train_actors, train_vec_numpy, appearances
 
 if __name__ == "__main__":
     # SETUP pre-trained BERT model with tokenizer
     model, tokenizer = setupBert()
 
-    roleDescriptionLoc = 'Data/TrainData/Roles.csv'
+    roleDescriptionLoc = 'Data/TrainData/RolesManual.csv'
     trainActorsLoc = 'Data/TrainData/trainActors.npy'
     trainVectorsLoc = 'Data/TrainData/trainVectors.npy'
     trainActorCountsLoc = 'Data/TrainData/trainActorCounts.json'
