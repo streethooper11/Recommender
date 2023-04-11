@@ -18,10 +18,8 @@ def wordEmbedTrainingData(model, tokenizer, trainDataLocs):
     # embed words for training with pre-trained BERT model and count the appearances of the actor in role descriptions
     train_actors, train_subwords, train_vectors, actor_counts = \
         embedWords(roleDescriptionLoc, model, tokenizer)
-    # Remove stop words from the embeddings and get it back
-    _, up_train_vectors = preprocess.eliminateStopWords(train_subwords, train_vectors)
     # train_vectors are tensors; convert to a regular list. It will be a 2D list.
-    up_train_vectors = processList.convertTensors(train_actors, up_train_vectors)
+    up_train_vectors = processList.convertTensors(train_actors, train_vectors)
 
     # As clustering takes 1D numpy array, the 2D list for vectors needs to be unrolled.
     # Unroll 2D list for vectors with matching actor names and save as a file for future reusability

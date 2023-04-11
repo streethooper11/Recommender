@@ -30,7 +30,7 @@ model, tokenizer = setupBert()
 
 # PART 2: WORD EMBEDDING FOR TRAINING DATA
 trainDataLocs = (roleDescriptionLoc, trainActorsLoc, trainVectorsLoc, trainActorCountsLoc)
-unroll_train_actors, train_vec_numpy, actor_counts = \
+unroll_train_actors, train_vec_numpy = \
     wordEmbedTrainingData(model, tokenizer, trainDataLocs)
 
 # PART 3: WORD EMBEDDING FOR INPUT DATA

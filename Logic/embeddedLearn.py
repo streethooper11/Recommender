@@ -3,6 +3,7 @@
 File responsible for word embedding using BERT
 """
 import json
+import string
 
 # Source for using BERT:
 # https://mccormickml.com/2019/05/14/BERT-word-embeddings-tutorial/
@@ -142,18 +143,28 @@ def embedWords(csvLoc: str, model, tokenizer):
     all_vectors = []
     actor_counts = dict()
 
+    # define stop words
+    bert_tokens = ["[CLS]", "[SEP]"]
+    with open("Data/NLTK_stopwords.txt", "r") as f:
+        nltk = f.readlines()
+
+    nltk_list = [line.strip() for line in nltk]
+
+    stop_words = set(nltk_list + list(string.punctuation) + bert_tokens)
+
     for i in range(df_length):
         actor_name = str(df.iloc[i, 0])
         paragraph = str(df.iloc[i, 1])
         token_paragraph, vector_paragraph = embedRoleDescription(model, tokenizer, paragraph)
+        token_paragraph, vector_paragraph = preprocess.eliminateStopWords(token_paragraph, vector_paragraph, stop_words)
         all_actors.append(actor_name)
         all_subwords.append(token_paragraph)
         all_vectors.append(vector_paragraph)
-        # As the actor appeared in a role description increase count by 1
+
+        # As the actor appeared in a role description increase count by the number of subwords
         if actor_name not in actor_counts:
             actor_counts[actor_name] = 0
-
-        actor_counts[actor_name] += 1
+        actor_counts[actor_name] += len(token_paragraph)
 
     return all_actors, all_subwords, all_vectors, actor_counts
 

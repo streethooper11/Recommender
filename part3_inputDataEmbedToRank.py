@@ -79,14 +79,12 @@ def wordEmbedInputData(model, tokenizer, roleDescriptionLoc):
     # embed words for testing with pre-trained BERT model
     input_actors, input_subwords, input_vectors, _ = \
         embedWords(roleDescriptionLoc, model, tokenizer)
-    # Remove stop words from the embeddings and get it back
-    up_input_subwords, up_input_vectors = preprocess.eliminateStopWords(input_subwords, input_vectors)
     # input_vectors are tensors; convert to a regular list. It will be a 2D list.
-    up_input_vectors = processList.convertTensors(input_actors, up_input_vectors)
+    up_input_vectors = processList.convertTensors(input_actors, input_vectors)
 
     # Vectors will be returned as a 2D list, as each element is a role description for a possibly different actor
     # and should be used separately.
-    return input_actors, up_input_subwords, up_input_vectors
+    return input_actors, input_subwords, up_input_vectors
 
 if __name__ == "__main__":
     movieRatingLoc = 'Data/TrainData/Movies.csv'
