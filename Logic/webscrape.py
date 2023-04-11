@@ -43,6 +43,7 @@ def webscrapeActors(files: list, output: str):
                     for paragraph in paragraphs:
                         writer.writerow([actor, paragraph])
 
+
 def webscrapeMovies(files: list, output: str):
     for file in files:
         # The text file will be links of X Y Z actor and named after them, for example Jack Black.txt

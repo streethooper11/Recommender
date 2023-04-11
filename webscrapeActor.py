@@ -15,7 +15,7 @@ for file in files:
         urls = f.readlines()
 
         for url in urls:
-            
+
             url = url.strip()  # remove leading/trailing white space
 
             # Make a request to the URL
