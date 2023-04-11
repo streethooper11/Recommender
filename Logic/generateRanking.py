@@ -26,9 +26,9 @@ def calculateRating(ratings, rating_appearances, actor):
 
 def generateRanking(query_clusters, clusters, appearances, ratings, rating_appearances, topNum=5):
     result = []
-    w1 = 0.1 # As similarityScore is a number between 0 and 1, smaller makes it more significant
-    w2 = 0.03
-    w3 = 0.1
+    w1 = 0.1 # As similarityScore is a number between 0 and 1, smaller value makes it more significant
+    w2 = 0.02 # As the total number of words will be high, set this low
+    w3 = 0.05 # Rating is between 0 and 10
 
     for actor in clusters:
         similarityScore = calculateSimilarity(query_clusters, clusters, appearances, actor) ** w1
