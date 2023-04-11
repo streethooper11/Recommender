@@ -53,7 +53,7 @@ def clusterToRankGen(input_actors, up_input_subwords, up_input_vectors):
         actor_name = input_actors[i]
 
         cluster_data = scanCluster("dbscan", train_vec_numpy, up_input_vectors[i])
-        # cluster_data = scanCluster("kmeans", train_vec_numpy, up_input_vectors[i])
+        #cluster_data = scanCluster("kmeans", train_vec_numpy, up_input_vectors[i])
 
         result_clusters, result_ratings, result_ratings_appearance = \
             actorInfoGeneration.createDictionary_ClustersActorsRatings(cluster_data, unroll_train_actors, movieRatingLoc)
