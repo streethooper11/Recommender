@@ -140,5 +140,5 @@ if __name__ == "__main__":
     # TEST TO FIND THE BEST HYPERPARAMETERS
     cluster_data = plotDBSCANResult(up_input_vectors[randIndex], eps=12.5, min_samples=6)
     plotDBSCANInputOnly(len(up_input_vectors[randIndex]), cluster_data, eps=12.5, min_samples=6)
-    cluster_data = plotkmeansResult(up_input_vectors[randIndex], n_clusters=20)
-    plotkmeansInputOnly(len(up_input_vectors[randIndex]), cluster_data, n_clusters=20)
+    cluster_data = plotkmeansResult(up_input_vectors[randIndex], n_clusters=40)
+    plotkmeansInputOnly(len(up_input_vectors[randIndex]), cluster_data, n_clusters=40)
