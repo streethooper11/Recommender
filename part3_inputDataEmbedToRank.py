@@ -30,7 +30,8 @@ def scanCluster(clusteringType: str, train_vec_numpy, input_vector, eps=12.2, mi
     else:
         return kmeansCluster(train_vec_numpy, input_vector, n_clusters)
 
-def clusterToRankGen(input_actors, up_input_subwords, up_input_vectors, eps=0, min_samples=1, n_clusters=0):
+def clusterToRankGen(input_actors, up_input_subwords, up_input_vectors, eps=12.2, min_samples=5, n_clusters=40,
+                     query_terms=10, similarity_w=5, popularity_w=1, rating_w=1, topNum=7):
     # CLUSTERING TO RANKING GENERATION
     # Steps:
     # 1. Get embeddings of a single role description
@@ -55,17 +56,12 @@ def clusterToRankGen(input_actors, up_input_subwords, up_input_vectors, eps=0, m
     for i in range(len(input_actors)):
         role_subwords = up_input_subwords[i]
 
-        if (eps > 0) and min_samples > 1:
-            # CLUSTERING with DBSCAN; remove all border points after
-            cluster_data = scanCluster("dbscan", train_vec_numpy, up_input_vectors[i], eps=eps, min_samples=min_samples)
-            role_subwords, cluster_data = preprocess.eliminateBorderPoints(role_subwords, cluster_data.tolist())
-        elif (n_clusters > 0):
-            # CLUSTERING with K-means
-            cluster_data = scanCluster("kmeans", train_vec_numpy, up_input_vectors[i], n_clusters=n_clusters)
-        else:
-            print("Please provide either dbscan options or n_clusters options. The program will not quit.")
-            exit()
+        # CLUSTERING with DBSCAN; remove all border points after
+        cluster_data = scanCluster("dbscan", train_vec_numpy, up_input_vectors[i], eps=eps, min_samples=min_samples)
+        role_subwords, cluster_data = preprocess.eliminateBorderPoints(role_subwords, cluster_data.tolist())
 
+        # CLUSTERING with K-means
+        #cluster_data = scanCluster("kmeans", train_vec_numpy, up_input_vectors[i], n_clusters=n_clusters)
 
         # ACTOR INFORMATION GENERATION
         # Done in this step now that the clustering data has been obtained
@@ -76,22 +72,13 @@ def clusterToRankGen(input_actors, up_input_subwords, up_input_vectors, eps=0, m
         try:
             # QUERY EXTRACTION
             input_DF = extractTerms.combine_input_cluster(up_input_subwords[i], cluster_data)
-            query_result = extractTerms.extractTerms(k=10, df=input_DF)
+            query_result = extractTerms.extractTerms(k=query_terms, df=input_DF)
             query_clusters = [x[1] for x in query_result]  # list comprehension to make a list of clusters only
-            print(query_clusters)
-
-            # RANKING GENERATION WITHOUT NORMALIZATION
-            #        top_actor_list = generateRanking.generateRanking \
-            #            (query_clusters, result_clusters, actor_counts, result_ratings, result_ratings_appearance, 5)
 
             # RANKING GENERATION WITH RATIO
-            topNum = 7  # Number of top actors to recommend
-            w1 = 5  # Weight for similarity
-            w2 = 1  # Weight for popularity
-            w3 = 1  # Weight for rating
             top_actor_list = generateRanking.generateRankingWithRatio \
                 (query_clusters, result_clusters, appearances, total_counts, result_ratings, result_ratings_appearance,
-                 topNum, w1, w2, w3)
+                 topNum=topNum, w1=similarity_w, w2=popularity_w, w3=rating_w)
 
             # CHECK IF THE ACTUAL ACTOR WAS IN THE RECOMMENDATION
             print("Recommended actors: ", top_actor_list)
@@ -115,12 +102,6 @@ def wordEmbedInputData(model, tokenizer, roleDescriptionLoc):
     # and should be used separately.
     return input_actors, input_subwords, up_input_vectors
 
-def plotDBSCANResult(actor_vectors):
-    # Plot DBSCAN result with a given set of hyperparameters.
-    # This function is used to find the optimal hyperparameters.
-    train_vec_numpy = np.load(trainVectorsLoc)
-    cluster_data = scanCluster("dbscan", train_vec_numpy, actor_vectors)
-
 if __name__ == "__main__":
     movieRatingLoc = 'Data/TrainData/Movies.csv'
     trainActorsLoc = 'Data/TrainData/trainActors.npy'
@@ -138,16 +119,13 @@ if __name__ == "__main__":
     # CLUSTER INPUT DATA AND GENERATE RANKS
     # Return the total number of correct predictions
     # Option to run DBSCAN
-    numMatch = clusterToRankGen(input_actors, up_input_subwords, up_input_vectors, eps=12.2, min_samples=5)
+    numMatch = clusterToRankGen(input_actors, up_input_subwords, up_input_vectors, eps=12.5, min_samples=6,
+                                query_terms=10, similarity_w=9
+                                , popularity_w=1, rating_w=2, topNum=7)
     # Option to run K-means clustering
-    #numMatch = clusterToRankGen(input_actors, up_input_subwords, up_input_vectors, n_clusters=40)
+    #numMatch = clusterToRankGen(input_actors, up_input_subwords, up_input_vectors, n_clusters=30,
+    #                            query_terms=10, similarity_w=5, popularity_w=1, rating_w=1, topNum=7)
 
     # Get the accuracy
     accuracy = numMatch / len(input_actors)
     print("Accuracy: ", accuracy)
-
-    """
-    # TEST TO FIND THE BEST HYPERPARAMETERS with the first input
-    plotDBSCANResult(up_input_vectors[0])
-
-    """

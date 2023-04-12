@@ -4,6 +4,8 @@ A file that plots the DBSCAN clustering result as a bar graph
 """
 
 import json
+import random
+
 import numpy as np
 from matplotlib import pyplot as plt
 
@@ -133,8 +135,10 @@ if __name__ == "__main__":
     input_actors, up_input_subwords, up_input_vectors = \
         wordEmbedInputData(model, tokenizer, inputRoleDescriptionLoc)
 
+    randIndex = random.randint(0, len(up_input_vectors) - 1)
+
     # TEST TO FIND THE BEST HYPERPARAMETERS
-    cluster_data = plotDBSCANResult(up_input_vectors[2], eps=12.5, min_samples=20)
-    plotDBSCANInputOnly(len(up_input_vectors[2]), cluster_data, eps=12.5, min_samples=20)
-    cluster_data = plotkmeansResult(up_input_vectors[2], n_clusters=12)
-    plotkmeansInputOnly(len(up_input_vectors[2]), cluster_data, n_clusters=12)
+    cluster_data = plotDBSCANResult(up_input_vectors[randIndex], eps=12.5, min_samples=6)
+    plotDBSCANInputOnly(len(up_input_vectors[randIndex]), cluster_data, eps=12.5, min_samples=6)
+    cluster_data = plotkmeansResult(up_input_vectors[randIndex], n_clusters=20)
+    plotkmeansInputOnly(len(up_input_vectors[randIndex]), cluster_data, n_clusters=20)

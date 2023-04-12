@@ -74,11 +74,6 @@ def clusterToRankGen(input_actors, up_input_subwords, up_input_vectors, eps=12.2
             input_DF = extractTerms.combine_input_cluster(up_input_subwords[i], cluster_data)
             query_result = extractTerms.extractTerms(k=query_terms, df=input_DF)
             query_clusters = [x[1] for x in query_result]  # list comprehension to make a list of clusters only
-            print(query_clusters)
-
-            # RANKING GENERATION WITHOUT NORMALIZATION
-            #        top_actor_list = generateRanking.generateRanking \
-            #            (query_clusters, result_clusters, actor_counts, result_ratings, result_ratings_appearance, 5)
 
             # RANKING GENERATION WITH RATIO
             top_actor_list = generateRanking.generateRankingWithRatio \
@@ -124,8 +119,9 @@ if __name__ == "__main__":
     # CLUSTER INPUT DATA AND GENERATE RANKS
     # Return the total number of correct predictions
     # Option to run DBSCAN
-    numMatch = clusterToRankGen(input_actors, up_input_subwords, up_input_vectors, eps=12.5, min_samples=6,
-                                query_terms=10, similarity_w=5, popularity_w=2, rating_w=1, topNum=7)
+    numMatch = clusterToRankGen(input_actors, up_input_subwords, up_input_vectors, eps=12, min_samples=6,
+                                query_terms=10, similarity_w=3
+                                , popularity_w=2, rating_w=2, topNum=7)
     # Option to run K-means clustering
     #numMatch = clusterToRankGen(input_actors, up_input_subwords, up_input_vectors, n_clusters=30,
     #                            query_terms=10, similarity_w=5, popularity_w=1, rating_w=1, topNum=7)
