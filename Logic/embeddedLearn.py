@@ -90,25 +90,18 @@ def embedSentence(trained_model, tokenizer, sentence: str):
     tokenized_text, indexed_tokens = tokenizeSentence(tokenizer, sentence)
     token_embeddings = getTokenEmbeddings(trained_model, indexed_tokens)
 
-    # The last 4 layers are concatenated, as they give out the highest f1 measure
+    # The second last hidden layer is used for efficiency yet high F1 score
     # Source: https://is-rajapaksha.medium.com/bert-word-embeddings-deep-dive-32f6214f02bf
 
-    # Stores the token vectors, with shape [22 x 3,072]
+    # Stores the token vectors, with shape [22 x 768]
     token_vecs_cat = []
 
     # `token_embeddings` is a [22 x 12 x 768] tensor.
-
     # For each token in the sentence...
     for token in token_embeddings:
         # `token` is a [12 x 768] tensor
-
-        # Concatenate the vectors (that is, append them together) from the last
-        # four layers.
-        # Each layer vector is 768 values, so `cat_vec` is length 3,072.
-        cat_vec = torch.cat((token[-1], token[-2], token[-3], token[-4]), dim=0)
-
-        # Use `cat_vec` to represent `token`.
-        token_vecs_cat.append(cat_vec)
+        # append the last hidden layer, so each vector will be 768
+        token_vecs_cat.append(token[-2])
 
     return tokenized_text, token_vecs_cat
 
@@ -136,7 +129,7 @@ def embedWords(csvLoc: str, model, tokenizer):
     # which requires comparing stopwords with the subwords in the same index with actor names and embeddings
     # therefore, we will process the word embedding manually, such that we keep track of the subwords.
 
-    df = pd.read_csv(csvLoc, header=None)
+    df = pd.read_csv(csvLoc, header=None, encoding="utf-8", encoding_errors="replace")
     df_length = len(df.index)
     all_actors = []
     all_subwords = []

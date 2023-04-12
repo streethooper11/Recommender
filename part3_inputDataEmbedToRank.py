@@ -26,9 +26,9 @@ def dbscanCluster(train_vec_numpy, input_vector, eps, min_samples):
 
 def scanCluster(clusteringType: str, train_vec_numpy, input_vector):
     if clusteringType.lower() == "dbscan":
-        return dbscanCluster(train_vec_numpy, input_vector, eps=24, min_samples=5)
+        return dbscanCluster(train_vec_numpy, input_vector, eps=12, min_samples=4)
     else:
-        return kmeansCluster(train_vec_numpy, input_vector, n_clusters=35)
+        return kmeansCluster(train_vec_numpy, input_vector, n_clusters=50)
 
 def clusterToRankGen(input_actors, up_input_subwords, up_input_vectors):
     # CLUSTERING TO RANKING GENERATION
@@ -54,10 +54,12 @@ def clusterToRankGen(input_actors, up_input_subwords, up_input_vectors):
     numMatch = 0  # number of times the actor name provided as the output in the testing data was predicted
     for i in range(len(input_actors)):
         role_subwords = up_input_subwords[i]
-        # CLUSTERING
+
+        # CLUSTERING with DBSCAN; remove all border points after
         cluster_data = scanCluster("dbscan", train_vec_numpy, up_input_vectors[i])
         role_subwords, cluster_data = preprocess.eliminateBorderPoints(role_subwords, cluster_data.tolist())
 
+        # CLUSTERING with K-means
         #cluster_data = scanCluster("kmeans", train_vec_numpy, up_input_vectors[i])
 
         # ACTOR INFORMATION GENERATION
@@ -66,27 +68,33 @@ def clusterToRankGen(input_actors, up_input_subwords, up_input_vectors):
             actorInfoGeneration.createDictionary_ClustersActorsRatings(cluster_data, unroll_train_actors,
                                                                        movieRatingLoc)
 
-        # QUERY EXTRACTION
-        input_DF = extractTerms.combine_input_cluster(up_input_subwords[i], cluster_data)
-        query_result = extractTerms.extractTerms(k=10, df=input_DF)
-        query_clusters = [x[1] for x in query_result]  # list comprehension to make a list of clusters only
+        try:
+            # QUERY EXTRACTION
+            input_DF = extractTerms.combine_input_cluster(up_input_subwords[i], cluster_data)
+            query_result = extractTerms.extractTerms(k=10, df=input_DF)
+            query_clusters = [x[1] for x in query_result]  # list comprehension to make a list of clusters only
+            print(query_clusters)
 
-        print(query_clusters)
+            # RANKING GENERATION WITHOUT NORMALIZATION
+            #        top_actor_list = generateRanking.generateRanking \
+            #            (query_clusters, result_clusters, actor_counts, result_ratings, result_ratings_appearance, 5)
 
-        # RANKING GENERATION WITHOUT NORMALIZATION
-        #        top_actor_list = generateRanking.generateRanking \
-        #            (query_clusters, result_clusters, actor_counts, result_ratings, result_ratings_appearance, 5)
+            # RANKING GENERATION WITH RATIO
+            topNum = 7  # Number of top actors to recommend
+            w1 = 0.8  # Weight for similarity
+            w2 = 0.2  # Weight for popularity
+            w3 = 0.35  # Weight for rating
+            top_actor_list = generateRanking.generateRankingWithRatio \
+                (query_clusters, result_clusters, appearances, total_counts, result_ratings, result_ratings_appearance,
+                 topNum, w1, w2, w3)
 
-        # RANKING GENERATION WITH NORMALIZATION
-        top_actor_list = generateRanking.generateRankingWithRatio \
-            (query_clusters, result_clusters, appearances, total_counts, result_ratings, result_ratings_appearance,
-             5)
-
-        # CHECK IF THE ACTUAL ACTOR WAS IN THE RECOMMENDATION
-        print("Recommended actors: ", top_actor_list)
-        if input_actors[i] in top_actor_list:
-            numMatch += 1
-            print("Name found!")
+            # CHECK IF THE ACTUAL ACTOR WAS IN THE RECOMMENDATION
+            print("Recommended actors: ", top_actor_list)
+            if input_actors[i] in top_actor_list:
+                numMatch += 1
+                print("Name found!")
+        except:
+            print("The input description does not have any word with a cluster!")
 
     return numMatch
 

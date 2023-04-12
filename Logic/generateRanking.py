@@ -63,7 +63,7 @@ def calculatePopularityRatio(appearances, total_counts,actor):
     if len(appearances) == 0:
         return 0
 
-    # Divide the total number of counts for the actor by the total number of counts for all the actors
+    # Divide the total number of cluster counts for the actor by the total number of cluster counts for all the actors
     # To get how often the actor appears in role descriptions
     return appearances[actor] / float(total_counts)
 
@@ -76,13 +76,11 @@ def calculateRatingRatio(ratings, rating_appearances, actor):
     # Average Rating is 0 to 10; divide by 10 to normalize it and get a value between 0 and 1
     return averageRating / 10
 
-def generateRankingWithRatio(query_clusters, clusters, appearances, total_counts, ratings, rating_appearances, topNum=5):
+def generateRankingWithRatio(query_clusters, clusters, appearances, total_counts, ratings, rating_appearances, topNum,
+                             w1, w2, w3):
     # This is another way of generating rank, with all 3 features using a ratio value between 0 and 1
     # Weights don't need to differ as much as they are all "normalized"
     result = []
-    w1 = 0.5 # Weight for similarity
-    w2 = 0.1 # Weight for popularity
-    w3 = 0.15 # Weight for rating
 
     numQuery = len(query_clusters) # The number of clusters, to be used in similarity ratio
     for actor in clusters:
