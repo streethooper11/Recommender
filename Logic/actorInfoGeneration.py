@@ -26,6 +26,7 @@ def createDictionary_ClustersActorsRatings(clusters, actors, ratingCsvLoc):
         if actors[i] not in result_clusters:
             result_clusters[actors[i]] = dict()
 
+        # Do not count border points
         if clusters[i] != -1:
             # If this is the first time the cluster appears, initialize it as 0
             if clusters[i] not in result_clusters[actors[i]]:

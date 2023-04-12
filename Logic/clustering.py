@@ -6,7 +6,6 @@ File responsible for clustering
 # https://scikit-learn.org/stable/modules/generated/sklearn.cluster.DBSCAN.html
 # https://techblog.assignar.com/how-to-use-bert-sentence-embedding-for-clustering-text/
 
-import numpy as np
 from sklearn.cluster import DBSCAN, KMeans
 
 

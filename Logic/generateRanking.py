@@ -6,7 +6,7 @@ File responsible for creating actor ranking for the recommendation system.
 def calculateSimilarity(query_clusters, clusters, actor):
     result = 0
     for query_cluster in query_clusters:
-        if (query_cluster >= 1) and (query_cluster in clusters[actor]):
+        if (query_cluster in clusters[actor]):
             result += clusters[actor][query_cluster]
 
     return float(result)
@@ -47,14 +47,17 @@ def generateRanking(query_clusters, clusters, appearances, ratings, rating_appea
         return result[:topNum]
 
 
-def calculateSimilarityRatio(query_clusters, clusters, appearances, actor):
+def calculateSimilarityRatio(query_clusters, clusters, appearances, actor, numQuery):
     result = 0
     for query_cluster in query_clusters:
         if (query_cluster >= 1) and (query_cluster in clusters[actor]):
             result += clusters[actor][query_cluster]
 
-    # Get a ratio of the result and the total number of cluster counts the actor got throughout all clusters
-    return result / float(appearances[actor])
+    # Get the total result, divided by the
+    # multiplication of the total number of clusters the actor has and
+    # the total number of times the actor was scanned to match the cluster, which is equal to the number of
+    # the input clusters
+    return result / float(appearances[actor] * numQuery)
 
 def calculatePopularityRatio(appearances, total_counts,actor):
     if len(appearances) == 0:
@@ -77,12 +80,13 @@ def generateRankingWithRatio(query_clusters, clusters, appearances, total_counts
     # This is another way of generating rank, with all 3 features using a ratio value between 0 and 1
     # Weights don't need to differ as much as they are all "normalized"
     result = []
-    w1 = 0.7 # Weight for similarity
+    w1 = 0.5 # Weight for similarity
     w2 = 0.1 # Weight for popularity
-    w3 = 0.3 # Weight for rating
+    w3 = 0.15 # Weight for rating
 
+    numQuery = len(query_clusters) # The number of clusters, to be used in similarity ratio
     for actor in clusters:
-        similarityRatio = calculateSimilarityRatio(query_clusters, clusters, appearances, actor) ** w1
+        similarityRatio = calculateSimilarityRatio(query_clusters, clusters, appearances, actor, numQuery) ** w1
         popularityRatio = calculatePopularityRatio(appearances, total_counts, actor) ** w2
         ratingRatio = calculateRatingRatio(ratings, rating_appearances, actor) ** w3
         actorScore = similarityRatio * popularityRatio * ratingRatio

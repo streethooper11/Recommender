@@ -64,6 +64,7 @@ def extractTerms(k, df):
                     og_word = word
                     break
             row = df.loc[(df["subwords"] == og_word)]
+
             terms.append((term[0], row.iloc[0]["cluster"]))
 
     return terms
