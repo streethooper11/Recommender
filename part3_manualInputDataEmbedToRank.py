@@ -30,7 +30,7 @@ def scanCluster(clusteringType: str, train_vec_numpy, input_vector, eps=12.2, mi
     else:
         return kmeansCluster(train_vec_numpy, input_vector, n_clusters)
 
-def clusterToRankGen(input_actors, up_input_subwords, up_input_vectors):
+def clusterToRankGen(input_actors, up_input_subwords, up_input_vectors, eps=12.2, min_samples=5, n_clusters=40):
     # CLUSTERING TO RANKING GENERATION
     # Steps:
     # 1. Get embeddings of a single role description
@@ -56,11 +56,11 @@ def clusterToRankGen(input_actors, up_input_subwords, up_input_vectors):
         role_subwords = up_input_subwords[i]
 
         # CLUSTERING with DBSCAN; remove all border points after
-        cluster_data = scanCluster("dbscan", train_vec_numpy, up_input_vectors[i], eps=12.2, min_samples=5)
+        cluster_data = scanCluster("dbscan", train_vec_numpy, up_input_vectors[i], eps=eps, min_samples=min_samples)
         role_subwords, cluster_data = preprocess.eliminateBorderPoints(role_subwords, cluster_data.tolist())
 
         # CLUSTERING with K-means
-        #cluster_data = scanCluster("kmeans", train_vec_numpy, up_input_vectors[i], n_clusters=40)
+        #cluster_data = scanCluster("kmeans", train_vec_numpy, up_input_vectors[i], n_clusters=n_clusters)
 
         # ACTOR INFORMATION GENERATION
         # Done in this step now that the clustering data has been obtained
