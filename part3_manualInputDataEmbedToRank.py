@@ -30,7 +30,8 @@ def scanCluster(clusteringType: str, train_vec_numpy, input_vector, eps=12.2, mi
     else:
         return kmeansCluster(train_vec_numpy, input_vector, n_clusters)
 
-def clusterToRankGen(input_actors, up_input_subwords, up_input_vectors, eps=12.2, min_samples=5, n_clusters=40):
+def clusterToRankGen(input_actors, up_input_subwords, up_input_vectors, eps=12.2, min_samples=5, n_clusters=40,
+                     query_terms=10, similarity_w=5, popularity_w=1, rating_w=1, topNum=7):
     # CLUSTERING TO RANKING GENERATION
     # Steps:
     # 1. Get embeddings of a single role description
@@ -71,7 +72,7 @@ def clusterToRankGen(input_actors, up_input_subwords, up_input_vectors, eps=12.2
         try:
             # QUERY EXTRACTION
             input_DF = extractTerms.combine_input_cluster(up_input_subwords[i], cluster_data)
-            query_result = extractTerms.extractTerms(k=10, df=input_DF)
+            query_result = extractTerms.extractTerms(k=query_terms, df=input_DF)
             query_clusters = [x[1] for x in query_result]  # list comprehension to make a list of clusters only
             print(query_clusters)
 
@@ -80,13 +81,9 @@ def clusterToRankGen(input_actors, up_input_subwords, up_input_vectors, eps=12.2
             #            (query_clusters, result_clusters, actor_counts, result_ratings, result_ratings_appearance, 5)
 
             # RANKING GENERATION WITH RATIO
-            topNum = 7  # Number of top actors to recommend
-            w1 = 5  # Weight for similarity
-            w2 = 1  # Weight for popularity
-            w3 = 1  # Weight for rating
             top_actor_list = generateRanking.generateRankingWithRatio \
                 (query_clusters, result_clusters, appearances, total_counts, result_ratings, result_ratings_appearance,
-                 topNum, w1, w2, w3)
+                 topNum=topNum, w1=similarity_w, w2=popularity_w, w3=rating_w)
 
             # CHECK IF THE ACTUAL ACTOR WAS IN THE RECOMMENDATION
             print("Recommended actors: ", top_actor_list)
@@ -127,9 +124,11 @@ if __name__ == "__main__":
     # CLUSTER INPUT DATA AND GENERATE RANKS
     # Return the total number of correct predictions
     # Option to run DBSCAN
-    numMatch = clusterToRankGen(input_actors, up_input_subwords, up_input_vectors, eps=12.2, min_samples=5)
+    numMatch = clusterToRankGen(input_actors, up_input_subwords, up_input_vectors, eps=12.5, min_samples=6,
+                                query_terms=10, similarity_w=5, popularity_w=2, rating_w=1, topNum=7)
     # Option to run K-means clustering
-    #numMatch = clusterToRankGen(input_actors, up_input_subwords, up_input_vectors, n_clusters=40)
+    #numMatch = clusterToRankGen(input_actors, up_input_subwords, up_input_vectors, n_clusters=30,
+    #                            query_terms=10, similarity_w=5, popularity_w=1, rating_w=1, topNum=7)
 
     # Get the accuracy
     accuracy = numMatch / len(input_actors)
