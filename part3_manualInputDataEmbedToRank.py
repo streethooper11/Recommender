@@ -117,7 +117,7 @@ def plotDBSCANResult(actor_vectors):
     cluster_data = scanCluster("dbscan", train_vec_numpy, actor_vectors)
 
 if __name__ == "__main__":
-    movieRatingLoc = 'Data/TrainData/Movies.csv'
+    movieRatingLoc = 'Data/TrainData/MoviesManual.csv'
     trainActorsLoc = 'Data/TrainData/trainActors.npy'
     trainVectorsLoc = 'Data/TrainData/trainVectors.npy'
     trainActorCountsLoc = 'Data/TrainData/trainActorCounts.json'

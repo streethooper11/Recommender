@@ -36,7 +36,7 @@ if __name__ == "__main__":
     # SETUP pre-trained BERT model with tokenizer
     model, tokenizer = setupBert()
 
-    roleDescriptionLoc = 'Data/TrainData/Roles.csv'
+    roleDescriptionLoc = 'Data/TrainData/RolesManual.csv'
     trainActorsLoc = 'Data/TrainData/trainActors.npy'
     trainVectorsLoc = 'Data/TrainData/trainVectors.npy'
     trainActorCountsLoc = 'Data/TrainData/trainActorCounts.json'
