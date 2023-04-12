@@ -2,6 +2,7 @@
 """
 File responsible for clustering
 """
+from matplotlib import pyplot as plt
 # Source for clustering using BERT vectors:
 # https://scikit-learn.org/stable/modules/generated/sklearn.cluster.DBSCAN.html
 # https://techblog.assignar.com/how-to-use-bert-sentence-embedding-for-clustering-text/

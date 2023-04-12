@@ -110,12 +110,6 @@ def wordEmbedInputData(model, tokenizer, roleDescriptionLoc):
     # and should be used separately.
     return input_actors, input_subwords, up_input_vectors
 
-def plotDBSCANResult(actor_vectors):
-    # Plot DBSCAN result with a given set of hyperparameters.
-    # This function is used to find the optimal hyperparameters.
-    train_vec_numpy = np.load(trainVectorsLoc)
-    cluster_data = scanCluster("dbscan", train_vec_numpy, actor_vectors)
-
 if __name__ == "__main__":
     movieRatingLoc = 'Data/TrainData/MoviesManual.csv'
     trainActorsLoc = 'Data/TrainData/trainActors.npy'
@@ -132,14 +126,11 @@ if __name__ == "__main__":
 
     # CLUSTER INPUT DATA AND GENERATE RANKS
     # Return the total number of correct predictions
-    numMatch = clusterToRankGen(input_actors, up_input_subwords, up_input_vectors)
+    # Option to run DBSCAN
+    numMatch = clusterToRankGen(input_actors, up_input_subwords, up_input_vectors, eps=12.2, min_samples=5)
+    # Option to run K-means clustering
+    #numMatch = clusterToRankGen(input_actors, up_input_subwords, up_input_vectors, n_clusters=40)
 
     # Get the accuracy
     accuracy = numMatch / len(input_actors)
     print("Accuracy: ", accuracy)
-
-    """
-    # TEST TO FIND THE BEST HYPERPARAMETERS with the first input
-    plotDBSCANResult(up_input_vectors[0])
-
-    """

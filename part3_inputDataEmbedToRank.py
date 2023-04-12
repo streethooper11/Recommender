@@ -30,7 +30,7 @@ def scanCluster(clusteringType: str, train_vec_numpy, input_vector, eps=12.2, mi
     else:
         return kmeansCluster(train_vec_numpy, input_vector, n_clusters)
 
-def clusterToRankGen(input_actors, up_input_subwords, up_input_vectors):
+def clusterToRankGen(input_actors, up_input_subwords, up_input_vectors, eps=0, min_samples=1, n_clusters=0):
     # CLUSTERING TO RANKING GENERATION
     # Steps:
     # 1. Get embeddings of a single role description
@@ -55,12 +55,17 @@ def clusterToRankGen(input_actors, up_input_subwords, up_input_vectors):
     for i in range(len(input_actors)):
         role_subwords = up_input_subwords[i]
 
-        # CLUSTERING with DBSCAN; remove all border points after
-        cluster_data = scanCluster("dbscan", train_vec_numpy, up_input_vectors[i], eps=12.2, min_samples=5)
-        role_subwords, cluster_data = preprocess.eliminateBorderPoints(role_subwords, cluster_data.tolist())
+        if (eps > 0) and min_samples > 1:
+            # CLUSTERING with DBSCAN; remove all border points after
+            cluster_data = scanCluster("dbscan", train_vec_numpy, up_input_vectors[i], eps=eps, min_samples=min_samples)
+            role_subwords, cluster_data = preprocess.eliminateBorderPoints(role_subwords, cluster_data.tolist())
+        elif (n_clusters > 0):
+            # CLUSTERING with K-means
+            cluster_data = scanCluster("kmeans", train_vec_numpy, up_input_vectors[i], n_clusters=n_clusters)
+        else:
+            print("Please provide either dbscan options or n_clusters options. The program will not quit.")
+            exit()
 
-        # CLUSTERING with K-means
-        #cluster_data = scanCluster("kmeans", train_vec_numpy, up_input_vectors[i], n_clusters=40)
 
         # ACTOR INFORMATION GENERATION
         # Done in this step now that the clustering data has been obtained
@@ -132,7 +137,10 @@ if __name__ == "__main__":
 
     # CLUSTER INPUT DATA AND GENERATE RANKS
     # Return the total number of correct predictions
-    numMatch = clusterToRankGen(input_actors, up_input_subwords, up_input_vectors)
+    # Option to run DBSCAN
+    numMatch = clusterToRankGen(input_actors, up_input_subwords, up_input_vectors, eps=12.2, min_samples=5)
+    # Option to run K-means clustering
+    #numMatch = clusterToRankGen(input_actors, up_input_subwords, up_input_vectors, n_clusters=40)
 
     # Get the accuracy
     accuracy = numMatch / len(input_actors)
