@@ -23,7 +23,7 @@ def webscrapeActors(files: list, output: str):
                     # Parse the HTML content using BeautifulSoup
                     soup = BeautifulSoup(response.content, 'html.parser')
 
-                    title = ["overview", "summary", "personality", "character", "characterization", "biography", "history"]
+                    title = ["overview", "summary", "personality", "character", "characterization", "biography", "history", "about", "official bio"]
                     paragraphs = []
 
                     first_paragraph = soup.find('p')

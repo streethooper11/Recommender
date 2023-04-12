@@ -24,11 +24,11 @@ def dbscanCluster(train_vec_numpy, input_vector, eps, min_samples):
 
     return cluster_data
 
-def scanCluster(clusteringType: str, train_vec_numpy, input_vector):
+def scanCluster(clusteringType: str, train_vec_numpy, input_vector, eps=12.2, min_samples=5, n_clusters=25):
     if clusteringType.lower() == "dbscan":
-        return dbscanCluster(train_vec_numpy, input_vector, eps=12, min_samples=4)
+        return dbscanCluster(train_vec_numpy, input_vector, eps, min_samples)
     else:
-        return kmeansCluster(train_vec_numpy, input_vector, n_clusters=50)
+        return kmeansCluster(train_vec_numpy, input_vector, n_clusters)
 
 def clusterToRankGen(input_actors, up_input_subwords, up_input_vectors):
     # CLUSTERING TO RANKING GENERATION
@@ -56,11 +56,11 @@ def clusterToRankGen(input_actors, up_input_subwords, up_input_vectors):
         role_subwords = up_input_subwords[i]
 
         # CLUSTERING with DBSCAN; remove all border points after
-        cluster_data = scanCluster("dbscan", train_vec_numpy, up_input_vectors[i])
+        cluster_data = scanCluster("dbscan", train_vec_numpy, up_input_vectors[i], eps=12.2, min_samples=5)
         role_subwords, cluster_data = preprocess.eliminateBorderPoints(role_subwords, cluster_data.tolist())
 
         # CLUSTERING with K-means
-        #cluster_data = scanCluster("kmeans", train_vec_numpy, up_input_vectors[i])
+        #cluster_data = scanCluster("kmeans", train_vec_numpy, up_input_vectors[i], n_clusters=40)
 
         # ACTOR INFORMATION GENERATION
         # Done in this step now that the clustering data has been obtained
@@ -81,9 +81,9 @@ def clusterToRankGen(input_actors, up_input_subwords, up_input_vectors):
 
             # RANKING GENERATION WITH RATIO
             topNum = 7  # Number of top actors to recommend
-            w1 = 0.8  # Weight for similarity
-            w2 = 0.2  # Weight for popularity
-            w3 = 0.35  # Weight for rating
+            w1 = 5  # Weight for similarity
+            w2 = 1  # Weight for popularity
+            w3 = 1  # Weight for rating
             top_actor_list = generateRanking.generateRankingWithRatio \
                 (query_clusters, result_clusters, appearances, total_counts, result_ratings, result_ratings_appearance,
                  topNum, w1, w2, w3)
