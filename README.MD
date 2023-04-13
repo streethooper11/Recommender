@@ -4,6 +4,13 @@ Actor recommendation system using BERT, a clustering method, and a custom scorin
 This program is developed in Python 3.11.
 
 ### How to use
+#### Requirements
+The following python packages are required to run the program:
+1. numpy
+2. pandas
+3. torch
+4. transformers
+
 #### The program is divided into 3 parts:
 1. Run part1_webscrapeTrainData.py to extract role descriptions and and movie ratings from the web
 2. Run part2_trainDataEmbed.py to use extracted data from part1 to create word embeddings for role descriptions from\
