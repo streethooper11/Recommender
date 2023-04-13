@@ -19,13 +19,10 @@ rating data instead. The manual one currently includes more information.
 1. After running part 1, you can run part 2 multiple times to re-use the scraped csv files.
 2. After running part 2, you can run part 3 multiple times to re-use the word embeddings from the training data.
 
-#### Output
+#### Notes
 Running part 3 shows, for each testing role description, the recommended actors and whether or not the actual actor
 that participated in that role is found in the recommendation on the console screen.\
 When all the testing data is done processing, it displays the accuracy for all the data given.
 
-part3test_PlotClusters.py can be used after creating part 2; it takes a random sample testing data,
-clusters data in DBSCAN and K-Means clustering,
-and plots the cluster results with the number of words in each cluster:\
-Two graphs for cluster results in training and testing data for each clustering method,\
-Two graphs for cluster results in testing data only for each clustering method.
+part3test_PlotClusters.py was used after creating part 2 to draw a bar graph after clustering:\
+One graph for cluster results in all data and one graph for cluster results in testing data only.
