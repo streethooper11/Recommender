@@ -120,11 +120,12 @@ if __name__ == "__main__":
     # Return the total number of correct predictions
     # Option to run DBSCAN
     numMatch = clusterToRankGen(input_actors, up_input_subwords, up_input_vectors, eps=12, min_samples=6,
-                                query_terms=10, similarity_w=5,
-                                popularity_w=2, rating_w=2, topNum=7)
+                                query_terms=10, similarity_w=3,
+                                popularity_w=0, rating_w=1, topNum=7)
     # Option to run K-means clustering
-    #numMatch = clusterToRankGen(input_actors, up_input_subwords, up_input_vectors, n_clusters=30,
-    #                            query_terms=10, similarity_w=5, popularity_w=1, rating_w=1, topNum=7)
+    #numMatch = clusterToRankGen(input_actors, up_input_subwords, up_input_vectors, n_clusters=40,
+    #                            query_terms=10, similarity_w=3,
+    #                            popularity_w=1, rating_w=1, topNum=7)
 
     # Get the accuracy
     accuracy = numMatch / len(input_actors)
